@@ -1,0 +1,687 @@
+\documentclass[a4paper]{article}
+
+\usepackage[margin=3cm]{geometry}
+
+\usepackage[english]{babel}
+
+\usepackage{fancyhdr}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[pdftex]{graphicx}
+%\setkeys{Gin}{width=0.9\textwidth} % globally set image width to 90% of the text width
+
+\usepackage{xcolor}
+
+% create diagrams
+\usepackage{tikz}
+
+%\usepackage{hyperref}
+\usepackage[pdftex,
+            pdfauthor={Secure by Default, Inc.},
+            pdftitle={Penetration Test Report},
+            pdfsubject={Example Pentest},
+            pdfkeywords={},
+            pdfproducer={LaTeX},
+            pdfcreator={pdflatex}]{hyperref}
+            
+% inline code
+\newcommand{\passthrough}[1]{\lstset{mathescape=false}#1\lstset{mathescape=true}}
+
+% define level-4 section
+\usepackage{titlesec}
+\setcounter{secnumdepth}{4}
+\titleformat{\paragraph}
+  {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+  \titlespacing*{\paragraph}
+  {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Pandoc uses '\tightlist' inside list environments
+\def\tightlist{}
+
+% disable indentation of first line of paragraphs
+\usepackage{parskip}
+
+% nice code listings
+\usepackage{listings}
+\lstset{
+  %backgroundcolor=\color{lightgray},
+  basicstyle=\footnotesize\ttfamily,
+  upquote=true,
+  linewidth=\textwidth,
+  breaklines,
+  breakatwhitespace,
+  frame=single,
+  numbers=none,
+}
+
+\newcommand{\severitygauge}[3][1]{
+  \begin{tikzpicture}[scale=#1]
+    \path (-3,0) (13,0); % this path will define the bounding box
+    
+    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
+    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+
+    \path (0, -0.2) node[anchor=north, color=black] {0};
+    \path (10, -0.2) node[anchor=north, color=black] {10};
+    \path (#2, 0.2) node[anchor=south]{#3};
+  \end{tikzpicture}
+}
+
+\newcommand{\minimalseveritygauge}[2][1]{
+  \begin{tikzpicture}[scale=#1, baseline=-0.5ex]
+    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
+    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+  \end{tikzpicture}
+}
+
+% conditionals (in macros)
+\usepackage{etoolbox}
+
+\newcommand{\highlight}[3]{
+  \ifstrequal{#2}{#3}{\framebox{#1}}{#1}
+}
+
+\newcommand{\CVSS}[9]{
+  \begin{tabular}{ll}
+    \textbf{Attack Vector} & \textbf{Scope}
+    \\
+    \highlight{Network}{N}{#2} \hspace{0.5em} \highlight{Adjacent}{A}{#2} \hspace{0.5em} \highlight{Local}{L}{#2} \hspace{0.5em} \highlight{Physical}{P}{#2}
+    \hspace{2em}
+    &
+    \highlight{Unchanged}{U}{#6} \hspace{0.5em} \highlight{Changed}{C}{#6}
+    \vspace{1.5ex}
+    \\
+    \textbf{Attack Complexity} & \textbf{Confidentiality}
+    \\
+    \highlight{Low}{L}{#3} \hspace{0.5em} \highlight{High}{H}{#3}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#7} \hspace{0.5em} \highlight{Low}{L}{#7} \hspace{0.5em} \highlight{High}{H}{#7}
+    \vspace{1.5ex}
+    \\
+    \textbf{Privileges Required} & \textbf{Integrity}
+    \\
+    \highlight{None}{N}{#4} \hspace{0.5em} \highlight{Low}{L}{#4} \hspace{0.5em} \highlight{High}{H}{#4}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#8} \hspace{0.5em} \highlight{Low}{L}{#8} \hspace{0.5em} \highlight{High}{H}{#8}
+    \vspace{1.5ex}
+    \\    
+    \textbf{User Interaction} & \textbf{Availability}
+    \\
+    \highlight{None}{N}{#5} \hspace{0.5em} \highlight{Required}{R}{#5}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#9} \hspace{0.5em} \highlight{Low}{L}{#9} \hspace{0.5em} \highlight{High}{H}{#9}
+  \end{tabular}
+}
+
+\newcommand{\DREAD}[5]{
+  \begin{tabular}{lccc}
+    \textbf{Damage}          & \highlight{Low}{L}{#1} & \highlight{Medium}{M}{#1} & \highlight{High}{H}{#1} \\
+    \textbf{Reliability}     & \highlight{Low}{L}{#2} & \highlight{Medium}{M}{#2} & \highlight{High}{H}{#2} \\
+    \textbf{Exploitability}  & \highlight{Low}{L}{#3} & \highlight{Medium}{M}{#3} & \highlight{High}{H}{#3} \\
+    \textbf{Affected Users}  & \highlight{Low}{L}{#4} & \highlight{Medium}{M}{#4} & \highlight{High}{H}{#4} \\
+    \textbf{Discoverability} & \highlight{Low}{L}{#5} & \highlight{Medium}{M}{#5} & \highlight{High}{H}{#5} 
+  \end{tabular}
+}
+
+% nicer tables
+\setlength{\tabcolsep}{10pt} % increase horizontal spacing; default value: 6pt
+\renewcommand{\arraystretch}{1.5} % increase vertical spacing; default value: 1
+
+\begin{document}
+
+% header and footer
+\pagestyle{fancy}
+\fancyhf{} % clear existing header/footer entries
+
+\begin{titlepage}
+
+  \vspace*{\fill}
+
+  \begin{center}
+    \makebox[\textwidth]{\includegraphics[width=\paperwidth]{templates/title}}
+  \end{center}
+
+  \vfill
+  
+  {
+    \Huge \textbf{\MakeUppercase{Penetration Test Report}}
+    \vspace{1ex}
+  }
+
+  {
+    \Large \textbf{Example, Inc.}
+    %\vspace{1ex}
+  }
+
+  {
+    \Large \textbf{Example Pentest}
+    %\vspace{1ex}
+  }
+
+  yyyy-mm-dd (1.0)
+\end{titlepage}
+
+\fancyhead[L]{Example Pentest}
+\fancyhead[R]{Confidential}
+
+\fancyfoot[C]{\thepage}
+
+{
+  \vspace*{\fill}
+
+  This report is for the sole information and use of Example, Inc.
+
+  \textbf{Secure By Default, Inc.} \\
+  \href{tel:+0123456789}{+0 123 456 789} \\
+  \href{mailto:contact@sbd.local}{contact@sbd.local} \\
+  \href{https://sbd.local/}{https://sbd.local/}
+}
+
+\clearpage
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
+
+Example, Inc.\ (i.e.\ the customer) engaged Secure By Default, Inc.\ to conduct a penetration test on their systems.
+In accordance with the customer the following types of penetration tests have been conducted:
+
+\begin{itemize}
+      \item pentest against web applications
+      \item pentest against IP hosts
+  \end{itemize}
+
+The following vulnerability classes have been found:
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ll}
+    \textbf{Class} & \textbf{Issues} \\
+    \hline
+          Class A & \(|\)\(|\) \\
+          Class B & \(|\) \\
+        \hline
+    \textbf{Total} & \textbf{3}
+  \end{tabular}
+\end{table}
+
+Vulnerabilities with severity scores between 6.0 and 9.8 (both out of 10) have been found.
+A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
+
+Quisque ut finibus mauris.
+Etiam mattis nisl nulla, eu iaculis urna tincidunt vitae.
+Etiam pellentesque metus vel luctus malesuada.
+Phasellus auctor scelerisque nisi sed semper.
+Aliquam vel molestie nulla, nec lacinia mi.
+In a feugiat erat, at laoreet lorem.
+
+Nunc sit amet tristique sem.
+Fusce arcu erat, mollis sit amet velit ac, tincidunt porta lorem.
+Suspendisse at augue aliquet, sodales tellus et, molestie lorem.
+Phasellus id pharetra tellus.
+Phasellus vel condimentum justo.
+Maecenas sem ligula, tincidunt quis scelerisque quis, ultrices ut quam.
+
+
+\clearpage
+\tableofcontents
+
+\clearpage
+\section{Introduction}
+
+Example, Inc.\ (i.e.\ the customer) engaged Secure By Default, Inc.\ to conduct a penetration test on their systems.
+In accordance with the customer the following types of penetration tests have been conducted:
+
+\begin{itemize}
+      \item pentest against web applications
+      \item pentest against IP hosts
+  \end{itemize}
+
+\subsection{Personnel}
+
+The following people were part of this penetration test:
+
+\begin{itemize}
+      \item Customer (customer@example.com)
+
+      \item Software Engineer (se@example.com)
+
+      \item Project Lead (lead@sbd.local)
+
+      \item Pentester (hacker@sbd.local)
+
+  \end{itemize}
+
+\subsection{Scope}
+
+Between yyyy-mm-dd and yyyy-mm-dd the following components have been analyzed:
+
+\begin{itemize}
+      \item \passthrough{\lstinline!example.com!} (application server)
+
+      \item \passthrough{\lstinline!https://example.com/!} (web application)
+
+  \end{itemize}
+
+All test-related IP traffic originates from the following addresses:
+
+\begin{itemize}
+  \item 11.22.33.44/24
+\end{itemize}
+
+\subsection{Methodology}
+
+Ex cumque unde ipsum molestias.
+Perferendis aut veritatis quas cum fugiat ea.
+Eligendi consequatur cupiditate excepturi.
+Aliquam blanditiis non nihil hic exercitationem unde.
+
+Optio magni quasi nulla nobis adipisci.
+Consequuntur placeat omnis impedit dolorum id.
+Eum assumenda nam in earum ea.
+Ipsa aliquam facilis cupiditate eos.
+Nam est neque ipsam quis voluptatum.
+
+Adipisci quo architecto ex fugit dolorem.
+Inventore soluta perspiciatis minus dolores dolore ipsam iste tempora.
+Vel et sunt suscipit praesentium vitae voluptatem sequi inventore.
+
+  \subsection{Required Information}
+
+  Secure By Default has asked for the following information to be provided:
+
+  \begin{itemize}
+\tightlist
+\item
+  access to the web application: fulfilled
+\item
+  credentials for the web application: fulfilled
+\end{itemize}
+
+
+
+  \subsection{Limitations}
+
+  During the engagement the following limitations were detected.
+  Secure By Default recommends to re-test the affected components once all limitations have been resolved.
+
+  \textbf{Dapibus}
+
+In dapibus est nec elit fermentum, et lacinia ipsum auctor.
+Praesent rhoncus, metus a tempor ultricies, ex ligula consequat elit, non sollicitudin massa libero vel odio.
+Duis blandit cursus metus.
+Quisque ac tincidunt lorem.
+Cras laoreet urna sed mi sagittis, et sagittis enim mattis.
+Praesent porttitor, dolor sagittis egestas hendrerit, ex neque sagittis sapien, vel tincidunt dui libero et sem.
+Fusce a odio faucibus, finibus augue non, aliquam augue.
+
+\textbf{Convallis}
+
+Nulla vitae nunc at magna molestie sodales convallis non libero.
+Pellentesque nec lectus lacinia, ultricies nulla in, laoreet lectus.
+Mauris eget urna efficitur, hendrerit diam eu, gravida mi.
+Phasellus porta lacinia ligula, ut dictum mi viverra at.
+Nullam dictum eros vitae massa ultrices, ac iaculis ante rhoncus.
+Donec pellentesque nec est sed porta.
+
+
+\subsection{Tools}
+
+The following tools have been used during the engagement:
+
+\begin{itemize}
+\tightlist
+\item
+  Nmap: network scanner
+\item
+  cURL: command-line tool for transferring data using various network protocols
+\item
+  SSLyze: TLS scanning tool
+\item
+  Nessus: vulnerability scanner
+\item
+  Burp Suite: web application security scanner
+\item
+  Git: collaboration tool
+\item
+  \LaTeX: document preparation
+\end{itemize}
+
+
+\clearpage
+\section{Results}
+\label{sec:results}
+
+  \begin{table}[h]
+    \centering
+        \begin{tabular}{ll}
+      \textbf{Vulnerability} & \textbf{Severity} \\
+      \hline
+              \hyperref[0-None-issue]{Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{9.8} 9.8 (critical) \\
+              \hyperref[0-None-issue2]{Aenean Gravida Pulvinar Lacus} & \minimalseveritygauge[0.2]{6.0} 6.0 (medium) \\
+          \end{tabular}
+  \end{table}
+  \begin{table}[h]
+    \centering
+    \caption{Issues of component ``EXAMPLE''.}    \begin{tabular}{ll}
+      \textbf{Vulnerability} & \textbf{Severity} \\
+      \hline
+              \hyperref[1-EXAMPLE-issue]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{6.5} 6.5 (medium) \\
+          \end{tabular}
+  \end{table}
+
+
+  % specify directory/directories where LaTeX should look for images
+  \graphicspath{ {report/issues} }
+
+  % loop over each of the group's issues
+      \clearpage
+    \subsection{Lorem Ipsum Dolor sit Amet}
+    \label{0-None-issue}
+
+    Repellat corporis aut odio veniam non autem vel.
+Repudiandae rerum et unde. Accusamus quae et repellat.
+Quod deserunt facilis voluptate dignissimos quidem ut iste.
+Accusantium sed et maiores deleniti.
+Officia eaque ad est amet.
+
+\textbf{Blanditiis}
+
+Blanditiis reprehenderit aspernatur aliquam qui.
+Ut quisquam et a cupiditate.
+Eum quaerat adipisci in cum esse reiciendis laborum.
+
+Possimus facilis aliquid consequatur consequuntur quos perferendis quia.
+Magni eveniet quas omnis culpa assumenda doloribus voluptas.
+Vero repellat sed vero facere error ducimus et.
+
+\textbf{Laudantium}
+
+Qui quia et aut officiis laudantium possimus possimus.
+Alias velit cumque sit.
+Et hic ipsum dolores et porro voluptatem.
+Non sunt quaerat sit cum error dolorem sapiente.
+
+\textbf{Omnis}
+
+Dolorem omnis unde itaque sit architecto autem sequi.
+Ut nemo ratione fugiat.
+Veniam incidunt voluptatum cumque aut.
+Rerum est odio cupiditate id esse sed rerum.
+
+
+    \subsubsection{Evidence}
+
+          \paragraph{vulnerable.example.com}
+
+      Repellat corporis aut odio veniam non autem vel.
+Repudiandae rerum et unde. Accusamus quae et repellat.
+Quod deserunt facilis voluptate dignissimos quidem ut iste.
+
+\begin{lstlisting}
+$ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
+Server: Apache 2.14
+\end{lstlisting}
+
+Ut quisquam et a cupiditate (see Figure \ref{IMG:0-None-issue-issue.png}).
+
+\textbf{Severity: critical}
+
+          \paragraph{POST api.example.com/v2/resource}
+
+      Possimus facilis aliquid consequatur consequuntur quos perferendis quia.
+Magni eveniet quas omnis culpa assumenda doloribus voluptas.
+Vero repellat sed vero facere error ducimus et.
+
+\textbf{Severity: low}
+
+    
+    \subsubsection{Affected Assets}
+
+    \begin{itemize}
+              \item vulnerable.example.com
+              \item api.example.com
+          \end{itemize}
+
+    \subsubsection{Severity}
+
+    \begin{center}
+      \severitygauge{9.8}{9.8 (critical)}
+
+              \CVSS{3.1}{N}{L}{N}{N}{U}{H}{H}{H}  
+      
+          \end{center}
+
+          \subsubsection{Recommendations}
+
+      \begin{itemize}
+\tightlist
+\item
+  Alias velit cumque sit.
+\item
+  Ut quisquam et a cupiditate.
+\item
+  Ut nemo ratione fugiat.
+\end{itemize}
+
+    
+          \subsubsection{References}
+
+      \begin{itemize}
+\tightlist
+\item
+  \href{https://example.com/}{Reference A}
+\item
+  \href{https://example.com/}{Reference B}
+\item
+  \href{https://example.com/}{Reference C}
+\end{itemize}
+
+    
+          \begin{figure}[p]
+        \centering
+        \includegraphics[width=\textwidth]{issue.png}
+        \caption{Vero repellat sed vero facere error ducimus et.}
+        \label{IMG:0-None-issue-issue.png}
+      \end{figure}
+    
+      \clearpage
+    \subsection{Aenean Gravida Pulvinar Lacus}
+    \label{0-None-issue2}
+
+    Nullam gravida urna eget massa sagittis sodales.
+Aenean venenatis convallis diam.
+Nulla eu nulla eget ligula bibendum placerat in vel nisi.
+Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+
+\textbf{Curibatur}
+
+Curabitur quis lectus nisi.
+Duis eu auctor nulla.
+Etiam non velit quam.
+Nunc et lectus sagittis, mattis ligula ut, sodales lectus.
+Fusce dignissim nisi non dolor suscipit mattis.
+Quisque hendrerit egestas quam.
+
+\textbf{Rhoncus}
+
+Aenean rhoncus rhoncus elit.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Integer ac massa non sapien congue hendrerit vel ac augue.
+Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
+Ut euismod tortor in quam iaculis tempus.
+Vestibulum sed consequat sem.
+
+
+    \subsubsection{Evidence}
+
+          \paragraph{GET api.example.com/v2/resource}
+
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Integer ac massa non sapien congue hendrerit vel ac augue.
+Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
+
+\textbf{Severity: medium}
+
+    
+    \subsubsection{Affected Assets}
+
+    \begin{itemize}
+              \item api.example.com
+          \end{itemize}
+
+    \subsubsection{Severity}
+
+    \begin{center}
+      \severitygauge{6.0}{6.0 (medium)}
+
+      
+              \DREAD{M}{H}{H}{L}{M}  
+          \end{center}
+
+          \subsubsection{Recommendations}
+
+      \begin{itemize}
+\tightlist
+\item
+  Mauris at nisi finibus velit.
+\item
+  Sed ut ligula hendrerit orci elementum luctus.
+\item
+  Fusce dignissim nisi non dolor suscipit mattis.
+\end{itemize}
+
+    
+          \subsubsection{References}
+
+      \begin{itemize}
+\tightlist
+\item
+  \href{https://example.com/}{Example Reference}
+\item
+  \href{https://example.com/}{Another Reference}
+\end{itemize}
+
+    
+    
+    
+
+  % specify directory/directories where LaTeX should look for images
+  \graphicspath{ {report/issues/1 - EXAMPLE} }
+
+  % loop over each of the group's issues
+      \clearpage
+    \subsection{[EXAMPLE] Lorem Ipsum Dolor sit Amet}
+    \label{1-EXAMPLE-issue}
+
+    Repellat corporis aut odio veniam non autem vel.
+Repudiandae rerum et unde. Accusamus quae et repellat.
+Quod deserunt facilis voluptate dignissimos quidem ut iste.
+Accusantium sed et maiores deleniti.
+Officia eaque ad est amet.
+
+\textbf{Blanditiis}
+
+Blanditiis reprehenderit aspernatur aliquam qui.
+Ut quisquam et a cupiditate.
+Eum quaerat adipisci in cum esse reiciendis laborum.
+
+Possimus facilis aliquid consequatur consequuntur quos perferendis quia.
+Magni eveniet quas omnis culpa assumenda doloribus voluptas.
+Vero repellat sed vero facere error ducimus et.
+
+\textbf{Laudantium}
+
+Qui quia et aut officiis laudantium possimus possimus.
+Alias velit cumque sit.
+Et hic ipsum dolores et porro voluptatem.
+Non sunt quaerat sit cum error dolorem sapiente.
+
+\textbf{Omnis}
+
+Dolorem omnis unde itaque sit architecto autem sequi.
+Ut nemo ratione fugiat.
+Veniam incidunt voluptatum cumque aut.
+Rerum est odio cupiditate id esse sed rerum.
+
+
+    \subsubsection{Evidence}
+
+          \paragraph{vulnerable.example.com}
+
+      Repellat corporis aut odio veniam non autem vel.
+Repudiandae rerum et unde. Accusamus quae et repellat.
+Quod deserunt facilis voluptate dignissimos quidem ut iste.
+
+\begin{lstlisting}
+$ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
+Server: Apache 2.14
+\end{lstlisting}
+
+Ut quisquam et a cupiditate (see Figure \ref{IMG:1-EXAMPLE-issue-issue.jpg}).
+
+\textbf{Severity: medium}
+
+          \paragraph{POST api.example.com/v2/resource}
+
+      Possimus facilis aliquid consequatur consequuntur quos perferendis quia.
+Magni eveniet quas omnis culpa assumenda doloribus voluptas.
+Vero repellat sed vero facere error ducimus et.
+
+\textbf{Severity: low}
+
+    
+    \subsubsection{Affected Assets}
+
+    \begin{itemize}
+              \item vulnerable.example.com
+              \item api.example.com
+          \end{itemize}
+
+    \subsubsection{Severity}
+
+    \begin{center}
+      \severitygauge{6.5}{6.5 (medium)}
+
+              \CVSS{3.1}{N}{L}{N}{N}{U}{L}{L}{N}  
+      
+          \end{center}
+
+          \subsubsection{Recommendations}
+
+      \begin{itemize}
+\tightlist
+\item
+  Alias velit cumque sit.
+\item
+  Ut quisquam et a cupiditate.
+\item
+  Ut nemo ratione fugiat.
+\end{itemize}
+
+    
+          \subsubsection{References}
+
+      \begin{itemize}
+\tightlist
+\item
+  \href{https://example.com/}{Reference A}
+\item
+  \href{https://example.com/}{Reference B}
+\item
+  \href{https://example.com/}{Reference C}
+\end{itemize}
+
+    
+          \begin{figure}[p]
+        \centering
+        \includegraphics[width=\textwidth]{issue.jpg}
+        \caption{Vero repellat sed vero facere error ducimus et.}
+        \label{IMG:1-EXAMPLE-issue-issue.jpg}
+      \end{figure}
+    
+    
+
+\end{document}

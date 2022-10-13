@@ -1,0 +1,392 @@
+\documentclass[a4paper]{article}
+
+\usepackage[margin=3cm]{geometry}
+
+\usepackage[english]{babel}
+
+\usepackage{fancyhdr}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[pdftex]{graphicx}
+%\setkeys{Gin}{width=0.9\textwidth} % globally set image width to 90% of the text width
+
+\usepackage{xcolor}
+
+% create diagrams
+\usepackage{tikz}
+
+%\usepackage{hyperref}
+\usepackage[pdftex,
+            pdfauthor={Secure by Default, Inc.},
+            pdftitle={Penetration Test Report},
+            pdfsubject={\VAR{ project.name }},
+            pdfkeywords={},
+            pdfproducer={LaTeX},
+            pdfcreator={pdflatex}]{hyperref}
+            
+% inline code
+\newcommand{\passthrough}[1]{\lstset{mathescape=false}#1\lstset{mathescape=true}}
+
+% define level-4 section
+\usepackage{titlesec}
+\setcounter{secnumdepth}{4}
+\titleformat{\paragraph}
+  {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+  \titlespacing*{\paragraph}
+  {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Pandoc uses '\tightlist' inside list environments
+\def\tightlist{}
+
+% disable indentation of first line of paragraphs
+\usepackage{parskip}
+
+% nice code listings
+\usepackage{listings}
+\lstset{
+  %backgroundcolor=\color{lightgray},
+  basicstyle=\footnotesize\ttfamily,
+  upquote=true,
+  linewidth=\textwidth,
+  breaklines,
+  breakatwhitespace,
+  frame=single,
+  numbers=none,
+}
+
+\newcommand{\severitygauge}[3][1]{
+  \begin{tikzpicture}[scale=#1]
+    \path (-3,0) (13,0); % this path will define the bounding box
+    
+    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
+    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+
+    \path (0, -0.2) node[anchor=north, color=black] {0};
+    \path (10, -0.2) node[anchor=north, color=black] {10};
+    \path (#2, 0.2) node[anchor=south]{#3};
+  \end{tikzpicture}
+}
+
+\newcommand{\minimalseveritygauge}[2][1]{
+  \begin{tikzpicture}[scale=#1, baseline=-0.5ex]
+    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
+    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+  \end{tikzpicture}
+}
+
+% conditionals (in macros)
+\usepackage{etoolbox}
+
+\newcommand{\highlight}[3]{
+  \ifstrequal{#2}{#3}{\framebox{#1}}{#1}
+}
+
+\newcommand{\CVSS}[9]{
+  \begin{tabular}{ll}
+    \textbf{Attack Vector} & \textbf{Scope}
+    \\
+    \highlight{Network}{N}{#2} \hspace{0.5em} \highlight{Adjacent}{A}{#2} \hspace{0.5em} \highlight{Local}{L}{#2} \hspace{0.5em} \highlight{Physical}{P}{#2}
+    \hspace{2em}
+    &
+    \highlight{Unchanged}{U}{#6} \hspace{0.5em} \highlight{Changed}{C}{#6}
+    \vspace{1.5ex}
+    \\
+    \textbf{Attack Complexity} & \textbf{Confidentiality}
+    \\
+    \highlight{Low}{L}{#3} \hspace{0.5em} \highlight{High}{H}{#3}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#7} \hspace{0.5em} \highlight{Low}{L}{#7} \hspace{0.5em} \highlight{High}{H}{#7}
+    \vspace{1.5ex}
+    \\
+    \textbf{Privileges Required} & \textbf{Integrity}
+    \\
+    \highlight{None}{N}{#4} \hspace{0.5em} \highlight{Low}{L}{#4} \hspace{0.5em} \highlight{High}{H}{#4}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#8} \hspace{0.5em} \highlight{Low}{L}{#8} \hspace{0.5em} \highlight{High}{H}{#8}
+    \vspace{1.5ex}
+    \\    
+    \textbf{User Interaction} & \textbf{Availability}
+    \\
+    \highlight{None}{N}{#5} \hspace{0.5em} \highlight{Required}{R}{#5}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#9} \hspace{0.5em} \highlight{Low}{L}{#9} \hspace{0.5em} \highlight{High}{H}{#9}
+  \end{tabular}
+}
+
+\newcommand{\DREAD}[5]{
+  \begin{tabular}{lccc}
+    \textbf{Damage}          & \highlight{Low}{L}{#1} & \highlight{Medium}{M}{#1} & \highlight{High}{H}{#1} \\
+    \textbf{Reliability}     & \highlight{Low}{L}{#2} & \highlight{Medium}{M}{#2} & \highlight{High}{H}{#2} \\
+    \textbf{Exploitability}  & \highlight{Low}{L}{#3} & \highlight{Medium}{M}{#3} & \highlight{High}{H}{#3} \\
+    \textbf{Affected Users}  & \highlight{Low}{L}{#4} & \highlight{Medium}{M}{#4} & \highlight{High}{H}{#4} \\
+    \textbf{Discoverability} & \highlight{Low}{L}{#5} & \highlight{Medium}{M}{#5} & \highlight{High}{H}{#5} 
+  \end{tabular}
+}
+
+% nicer tables
+\setlength{\tabcolsep}{10pt} % increase horizontal spacing; default value: 6pt
+\renewcommand{\arraystretch}{1.5} % increase vertical spacing; default value: 1
+
+\begin{document}
+
+% header and footer
+\pagestyle{fancy}
+\fancyhf{} % clear existing header/footer entries
+
+\begin{titlepage}
+
+  \vspace*{\fill}
+
+  \begin{center}
+    \makebox[\textwidth]{\includegraphics[width=\paperwidth]{templates/title}}
+  \end{center}
+
+  \vfill
+  
+  {
+    \Huge \textbf{\MakeUppercase{Penetration Test Report}}
+    \vspace{1ex}
+  }
+
+  {
+    \Large \textbf{\VAR{ project.customer }}
+    %\vspace{1ex}
+  }
+
+  {
+    \Large \textbf{\VAR{ project.name }}
+    %\vspace{1ex}
+  }
+
+  \VAR{ project.report.revision }
+\end{titlepage}
+
+\fancyhead[L]{\VAR{ project.name }}
+\fancyhead[R]{Confidential}
+
+\fancyfoot[C]{\thepage}
+
+{
+  \vspace*{\fill}
+
+  This report is for the sole information and use of \VAR{ project.customer|trim('.') }.
+
+  \textbf{Secure By Default, Inc.} \\
+  \href{tel:+0123456789}{+0 123 456 789} \\
+  \href{mailto:contact@sbd.local}{contact@sbd.local} \\
+  \href{https://sbd.local/}{https://sbd.local/}
+}
+
+\clearpage
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
+
+\VAR{ project.customer }\ (i.e.\ the customer) engaged Secure By Default, Inc.\ to conduct a penetration test on their systems.
+In accordance with the customer the following types of penetration tests have been conducted:
+
+\begin{itemize}
+  \BLOCK{ for service in project.services }
+    \item \VAR{ service|trim }
+  \BLOCK{ endfor }
+\end{itemize}
+
+The following vulnerability classes have been found:
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ll}
+    \textbf{Class} & \textbf{Issues} \\
+    \hline
+    \BLOCK{ for class, items in issues|groupby("class") }
+      \VAR{ class|title } & \BLOCK{ for issue in items }\(|\)\BLOCK{ endfor } \\
+    \BLOCK{ endfor }
+    \hline
+    \textbf{Total} & \textbf{\VAR{ issues|length }}
+  \end{tabular}
+\end{table}
+
+Vulnerabilities with severity scores between \VAR{ severity_range.min } and \VAR{ severity_range.max } (both out of 10) have been found.
+A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
+
+\VAR{ summary|markdown2latex }
+
+\clearpage
+\tableofcontents
+
+\clearpage
+\section{Introduction}
+
+\VAR{ project.customer }\ (i.e.\ the customer) engaged Secure By Default, Inc.\ to conduct a penetration test on their systems.
+In accordance with the customer the following types of penetration tests have been conducted:
+
+\begin{itemize}
+  \BLOCK{ for service in project.services }
+    \item \VAR{ service|trim }
+  \BLOCK{ endfor }
+\end{itemize}
+
+\subsection{Personnel}
+
+The following people were part of this penetration test:
+
+\begin{itemize}
+  \BLOCK{ for person in project.personnel }
+    \item \VAR{ person|markdown2latex }
+  \BLOCK{ endfor }
+\end{itemize}
+
+\subsection{Scope}
+
+Between \VAR{ project.period.start } and \VAR{ project.period.end } the following components have been analyzed:
+
+\begin{itemize}
+  \BLOCK{ for scope in project.scope }
+    \item \VAR{ scope|markdown2latex }
+  \BLOCK{ endfor }
+\end{itemize}
+
+All test-related IP traffic originates from the following addresses:
+
+\begin{itemize}
+  \item 11.22.33.44/24
+\end{itemize}
+
+\subsection{Methodology}
+
+Ex cumque unde ipsum molestias.
+Perferendis aut veritatis quas cum fugiat ea.
+Eligendi consequatur cupiditate excepturi.
+Aliquam blanditiis non nihil hic exercitationem unde.
+
+Optio magni quasi nulla nobis adipisci.
+Consequuntur placeat omnis impedit dolorum id.
+Eum assumenda nam in earum ea.
+Ipsa aliquam facilis cupiditate eos.
+Nam est neque ipsam quis voluptatum.
+
+Adipisci quo architecto ex fugit dolorem.
+Inventore soluta perspiciatis minus dolores dolore ipsam iste tempora.
+Vel et sunt suscipit praesentium vitae voluptatem sequi inventore.
+
+\BLOCK{ if required_info }
+  \subsection{Required Information}
+
+  Secure By Default has asked for the following information to be provided:
+
+  \VAR{ required_info|markdown2latex }
+\BLOCK{ endif }
+
+\BLOCK{ if provided_info }
+  \subsection{Provided Information}
+
+  The customer has provided the following additional information:
+
+  \VAR{ provided_info|markdown2latex }
+\BLOCK{ endif }
+
+\BLOCK{ if limitations }
+  \subsection{Limitations}
+
+  During the engagement the following limitations were detected.
+  Secure By Default recommends to re-test the affected components once all limitations have been resolved.
+
+  \VAR{ limitations|markdown2latex }
+\BLOCK{ endif }
+
+\subsection{Tools}
+
+The following tools have been used during the engagement:
+
+\VAR{ tools|markdown2latex }
+
+\clearpage
+\section{Results}
+\label{sec:results}
+
+\BLOCK{ for group in groups }
+  \begin{table}[h]
+    \centering
+    \BLOCK{ if group.name }\caption{Issues of component ``\VAR{ group.name }''.}\BLOCK{ endif }
+    \begin{tabular}{ll}
+      \textbf{Vulnerability} & \textbf{Severity} \\
+      \hline
+      \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
+        \hyperref[\VAR{ issue.label }]{\VAR{ issue.title }} & \minimalseveritygauge[0.2]{\VAR{ issue.severity.number }} \VAR{ issue.severity.number } (\VAR{ issue.severity.class|lower }) \\
+      \BLOCK{ endfor }
+    \end{tabular}
+  \end{table}
+\BLOCK{ endfor }
+
+\BLOCK{ for group in groups }
+
+  % specify directory/directories where LaTeX should look for images
+  \graphicspath{ {\VAR{ group.graphics_path }} }
+
+  % loop over each of the group's issues
+  \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
+    \clearpage
+    \subsection{\VAR{ issue.title }}
+    \label{\VAR{ issue.label }}
+
+    \VAR{ issue.description|markdown2latex }
+
+    \subsubsection{Evidence}
+
+    \BLOCK{ for evidence in issue.evidence }
+      \paragraph{\VAR{ evidence.id }}
+
+      \VAR{ evidence.description|markdown2latex }
+    \BLOCK{ endfor }
+
+    \subsubsection{Affected Assets}
+
+    \begin{itemize}
+      \BLOCK{ for asset in issue.affected_assets }
+        \item \VAR{ asset }
+      \BLOCK{ endfor }
+    \end{itemize}
+
+    \subsubsection{Severity}
+
+    \begin{center}
+      \severitygauge{\VAR{ issue.severity.number }}{\VAR{ issue.severity.number } (\VAR{ issue.severity.class|lower })}
+
+      \BLOCK{ if issue.severity.cvss }
+        \CVSS\BLOCK{ for metric in issue.severity.cvss }{\VAR{ metric }}\BLOCK{ endfor }  
+      \BLOCK{ endif }
+
+      \BLOCK{ if issue.severity.dread }
+        \DREAD\BLOCK{ for metric in issue.severity.dread }{\VAR{ metric }}\BLOCK{ endfor }  
+      \BLOCK{ endif }
+    \end{center}
+
+    \BLOCK{ if issue.recommendations }
+      \subsubsection{Recommendations}
+
+      \VAR{ issue.recommendations|markdown2latex }
+    \BLOCK{ endif }
+
+    \BLOCK{ if issue.references }
+      \subsubsection{References}
+
+      \VAR{ issue.references|markdown2latex }
+    \BLOCK{ endif }
+
+    \BLOCK{ for image in issue.images }
+      \begin{figure}[p]
+        \centering
+        \includegraphics[width=\textwidth]{\VAR{ image.file }}
+        \caption{\VAR{ image.caption }}
+        \label{IMG:\VAR{ issue.label }-\VAR{ image.file }}
+      \end{figure}
+    \BLOCK{ endfor }
+
+  \BLOCK{ endfor }
+  
+\BLOCK{ endfor }
+
+\end{document}

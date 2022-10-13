@@ -1,0 +1,19 @@
+customer: Example, Inc.
+name: Example Pentest
+services:
+  - pentest against web applications
+  - pentest against IP hosts
+scope:
+  - '`example.com` (application server)'
+  - '`https://example.com/` (web application)'
+period:
+  start: yyyy-mm-dd
+  end: yyyy-mm-dd
+personnel:
+  - Customer (customer@example.com)
+  - Software Engineer (se@example.com)
+  - Project Lead (lead@sbd.local)
+  - Pentester (hacker@sbd.local)
+report:
+  template: english
+  revision: yyyy-mm-dd (1.0)
