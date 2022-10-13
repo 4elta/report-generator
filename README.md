@@ -8,13 +8,13 @@ Create beautiful pentest reports from Markdown and YAML documents.
 
 Install Jinja2:
 
-```txt
+```text
 $ python3 -m pip install Jinja2
 ```
 
 Install TeX Live (full) and Pandoc:
 
-```txt
+```text
 $ sudo apt install texlive-full pandoc
 ```
 
@@ -29,7 +29,7 @@ $ sudo apt install texlive-full pandoc
 5. fill *required info*, *provided info*, *tools*, *limitations* and *summary* documents
 6. create the PDF report
 
-```txt
+```text
 $ ./report.py -h
 usage: report.py [-h] [-o] [-v]
 
