@@ -22,7 +22,7 @@ $ sudo apt install texlive-full pandoc
 
 1. modify `project.yaml`
 2. conduct pentest
-3. document findings in `report/issues/<issue title>.yaml`
+3. document findings in `report/issues/<issue title>.md`
   * put screenshots right next to the issue file
   * you can structure a pentest into groups: put the issues into folders (e.g. `report/issues/1 - EXAMPLE/`)
 4. add vulnerability templates to `report/vulnerabilities/`
