@@ -1,0 +1,70 @@
+# id
+
+* outdatded software
+* apache
+
+# title
+
+The Vulnerability's Title is Optional
+
+# description
+
+The following properties of the `issue` object are optional:
+
+* `title`
+* `description`
+* `recommendations`
+* `references`
+
+Just be sure that you are referencing an existing vulnerability (i.e. with the `id` property)!
+
+You can overwrite any of the above properties by providing them in the issue YAML document.
+
+# evidence
+
+## vulnerable.example.com
+
+Describe the evidence as detailed as possible.
+If possible, use cURL instead of screenshots of Burp.
+
+```
+$ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
+Server: Apache 2.14
+```
+
+You can also add screenshots (see at the end of this file); reference them with !REF:IMG:issue.png!
+
+**Severity: Critical**
+
+## POST api.example.com/v2/resource
+
+Another evidence ...
+
+**Severity: Low**
+      
+# affected assets
+
+* vulnerable.example.com
+* api.example.com
+
+# severity
+
+9.8 (Critical)
+CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+D:M/R:H/E:H/A:L/D:M
+use either CVSS or DREAD
+
+# recommendations
+
+Give detailed steps on how to mitigate the vulnerability.
+
+# references
+
+* [Reference](https://example.com/)
+
+# images
+
+* [Caption text.](issue.png)
+* [Some other caption.](something.jpg)
+  - file: something.jpg
+    caption: Some other caption.

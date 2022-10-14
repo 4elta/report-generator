@@ -336,24 +336,20 @@ The following tools have been used during the engagement:
 
     \subsubsection{Evidence}
 
-    \BLOCK{ for evidence in issue.evidence }
-      \paragraph{\VAR{ evidence.id }}
+    \BLOCK{ for id, evidence in issue.evidence|items() }
+      \paragraph{\VAR{ id }}
 
-      \VAR{ evidence.description|markdown2latex }
+      \VAR{ evidence|markdown2latex }
     \BLOCK{ endfor }
 
     \subsubsection{Affected Assets}
 
-    \begin{itemize}
-      \BLOCK{ for asset in issue.affected_assets }
-        \item \VAR{ asset }
-      \BLOCK{ endfor }
-    \end{itemize}
+    \VAR{ issue['affected assets']|markdown2latex }
 
     \subsubsection{Severity}
 
     \begin{center}
-      \severitygauge{\VAR{ issue.severity.number }}{\VAR{ issue.severity.number } (\VAR{ issue.severity.class|lower })}
+      \severitygauge{\VAR{ issue.severity.number }}{\VAR{ issue.severity.number }\BLOCK{ if issue.severity.class } (\VAR{ issue.severity.class|lower })\BLOCK{ endif }}
 
       \BLOCK{ if issue.severity.cvss }
         \CVSS\BLOCK{ for metric in issue.severity.cvss }{\VAR{ metric }}\BLOCK{ endfor }  
@@ -381,7 +377,7 @@ The following tools have been used during the engagement:
         \centering
         \includegraphics[width=\textwidth]{\VAR{ image.file }}
         \caption{\VAR{ image.caption }}
-        \label{IMG:\VAR{ issue.label }-\VAR{ image.file }}
+        \label{fig:\VAR{ issue.label }-\VAR{ image.file }}
       \end{figure}
     \BLOCK{ endfor }
 

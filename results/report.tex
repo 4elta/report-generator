@@ -359,8 +359,10 @@ The following tools have been used during the engagement:
         \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[0-None-issue]{Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{9.8} 9.8 (critical) \\
-              \hyperref[0-None-issue2]{Aenean Gravida Pulvinar Lacus} & \minimalseveritygauge[0.2]{6.0} 6.0 (medium) \\
+              \hyperref[0-None-issue]{Lorem Ipsum Dolor sit Amet
+} & \minimalseveritygauge[0.2]{9.8} 9.8 (critical) \\
+              \hyperref[0-None-issue2]{Aenean Gravida Pulvinar Lacus
+} & \minimalseveritygauge[0.2]{6.0} 6.0 (medium) \\
           \end{tabular}
   \end{table}
   \begin{table}[h]
@@ -368,7 +370,8 @@ The following tools have been used during the engagement:
     \caption{Issues of component ``EXAMPLE''.}    \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[1-EXAMPLE-issue]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{6.5} 6.5 (medium) \\
+              \hyperref[1-EXAMPLE-issue]{[EXAMPLE] Lorem Ipsum Dolor sit Amet
+} & \minimalseveritygauge[0.2]{6.5} 6.5 (medium) \\
           \end{tabular}
   \end{table}
 
@@ -378,7 +381,8 @@ The following tools have been used during the engagement:
 
   % loop over each of the group's issues
       \clearpage
-    \subsection{Lorem Ipsum Dolor sit Amet}
+    \subsection{Lorem Ipsum Dolor sit Amet
+}
     \label{0-None-issue}
 
     Repellat corporis aut odio veniam non autem vel.
@@ -425,7 +429,7 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 \end{lstlisting}
 
-Ut quisquam et a cupiditate (see Figure \ref{IMG:0-None-issue-issue.png}).
+Ut quisquam et a cupiditate (see Figure \ref{fig:0-None-issue-issue.png}).
 
 \textbf{Severity: critical}
 
@@ -441,9 +445,13 @@ Vero repellat sed vero facere error ducimus et.
     \subsubsection{Affected Assets}
 
     \begin{itemize}
-              \item vulnerable.example.com
-              \item api.example.com
-          \end{itemize}
+\tightlist
+\item
+  vulnerable.example.com
+\item
+  api.example.com
+\end{itemize}
+
 
     \subsubsection{Severity}
 
@@ -484,11 +492,12 @@ Vero repellat sed vero facere error ducimus et.
         \centering
         \includegraphics[width=\textwidth]{issue.png}
         \caption{Vero repellat sed vero facere error ducimus et.}
-        \label{IMG:0-None-issue-issue.png}
+        \label{fig:0-None-issue-issue.png}
       \end{figure}
     
       \clearpage
-    \subsection{Aenean Gravida Pulvinar Lacus}
+    \subsection{Aenean Gravida Pulvinar Lacus
+}
     \label{0-None-issue2}
 
     Nullam gravida urna eget massa sagittis sodales.
@@ -529,8 +538,11 @@ Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
     \subsubsection{Affected Assets}
 
     \begin{itemize}
-              \item api.example.com
-          \end{itemize}
+\tightlist
+\item
+  api.example.com
+\end{itemize}
+
 
     \subsubsection{Severity}
 
@@ -573,7 +585,8 @@ Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
 
   % loop over each of the group's issues
       \clearpage
-    \subsection{[EXAMPLE] Lorem Ipsum Dolor sit Amet}
+    \subsection{[EXAMPLE] Lorem Ipsum Dolor sit Amet
+}
     \label{1-EXAMPLE-issue}
 
     Repellat corporis aut odio veniam non autem vel.
@@ -620,9 +633,9 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 \end{lstlisting}
 
-Ut quisquam et a cupiditate (see Figure \ref{IMG:1-EXAMPLE-issue-issue.jpg}).
+Ut quisquam et a cupiditate (see Figure \ref{fig:1-EXAMPLE-issue-issue.jpg}).
 
-\textbf{Severity: medium}
+\textbf{Severity: critical}
 
           \paragraph{POST api.example.com/v2/resource}
 
@@ -636,9 +649,13 @@ Vero repellat sed vero facere error ducimus et.
     \subsubsection{Affected Assets}
 
     \begin{itemize}
-              \item vulnerable.example.com
-              \item api.example.com
-          \end{itemize}
+\tightlist
+\item
+  vulnerable.example.com
+\item
+  api.example.com
+\end{itemize}
+
 
     \subsubsection{Severity}
 
@@ -679,7 +696,7 @@ Vero repellat sed vero facere error ducimus et.
         \centering
         \includegraphics[width=\textwidth]{issue.jpg}
         \caption{Vero repellat sed vero facere error ducimus et.}
-        \label{IMG:1-EXAMPLE-issue-issue.jpg}
+        \label{fig:1-EXAMPLE-issue-issue.jpg}
       \end{figure}
     
     

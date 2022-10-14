@@ -27,42 +27,94 @@ def read_file(path):
     content = f.read()
   return content.strip()
 
-def parse_vulnerability(path):
-  vulnerability = {}
+def parse_severity(content):
+  match = re.search(r'(?P<number>\d(\.\d+))\s+(\((?P<class>[^)]+)\))?\s+(((?P<cvss>CVSS:[^/]+(/\w+:.)+))|((?P<dread>D:./R:./E:./A:./D:.)))?\s*', content, flags=re.MULTILINE)
+
+  if match:
+    return {
+      'number': match.group('number'),
+      'class': match.group('class'),
+      'cvss': match.group('cvss'),
+      'dread': match.group('dread')
+    }
+
+def parse_images(image_strings):
+  images = []
+  
+  for image in image_strings:
+    match = re.search(r'!\[(?P<caption>[^\]]+)\]\((?P<file>[^\)]+)\)', image)
+    
+    if not match:
+      continue
+      
+    images.append(
+      {
+        'caption': match.group('caption'),
+        'file': match.group('file')
+      }
+    )
+
+  return images
+  
+def parse_unordered_list(content):
+  array = []
+
+  for item in content.split('\n'):
+    if item.strip():
+      array.append(
+        re.sub(
+          r'^(\*|-)\s+(.+?)\s*$',
+          r'\2',
+          item,
+        )
+      )
+
+  return array
+
+def parse_content(content, section_level):
+  sections = {}
 
   patterns = {
-    'title': re.compile(r'^# (?P<title>.+)\s*'),
-    'description': re.compile(r'^## description\s+(?P<description>.+?)\s+^## ', re.MULTILINE | re.DOTALL),
-    'recommendations': re.compile(r'^## recommendations\s+(?P<recommendations>.+?)\s+^## ', re.MULTILINE | re.DOTALL),
-    'references': re.compile(r'^## references\s+(?P<references>.+?)\s+^## ', re.MULTILINE | re.DOTALL),
-    'id': re.compile(r'^## id\s+(?P<id>.+)\s*', re.MULTILINE)
+    1: r'^# ',
+    2: r'^## '
   }
+  
+  for section in re.split(patterns[section_level], content, flags=re.MULTILINE):
+    if not section:
+      continue
 
+    match = re.search(r'^(?P<name>.+?)$\s+(?P<content>.+)\s+', section, flags=re.MULTILINE|re.DOTALL)
+    if match:
+      section_name = match.group('name')
+      section_content = match.group('content')
+
+      sections[section_name] = section_content
+
+      if section_level == 1:
+        if section_name == 'id':
+          sections[section_name] = parse_unordered_list(section_content)
+
+        if section_name == 'evidence':
+          sections[section_name] = parse_content(section_content, 2)
+          
+        if section_name == 'severity':
+          sections[section_name] = parse_severity(section_content)
+
+        if section_name == 'images':
+          sections[section_name] = parse_images(parse_unordered_list(section_content))
+      
+  return sections
+
+def load_file(path):
   with open(path) as f:
     content = f.read()
 
-  for key, pattern in patterns.items():
-    m = pattern.search(content)
-    if m:
-      vulnerability[key] = m.group(key).strip()
-    else:
-      vulnerability[key] = ''
-
-  vulnerability['id'] = tuple(vulnerability['id'].split(';'))
-        
-  return vulnerability
-
-def load_vulnerabilities(path):
-  vulnerabilities = {}
-
-  for vulnerability_file in path.glob('**/*.md'):
-    vulnerability = parse_vulnerability(vulnerability_file)
-    vulnerabilities[vulnerability['id']] = vulnerability
-
-  return vulnerabilities
-
+  return parse_content(content, 1)
+  
 def load_issue(issue_file, group, vulnerabilities):
-  issue = yaml.safe_load(open(issue_file))
+  #issue = yaml.safe_load(open(issue_file))
+  issue = load_file(issue_file)
+  
   log(f"\nissue ({issue_file}):\n")
   log(json.dumps(issue, indent=2))
 
@@ -81,24 +133,23 @@ def load_issue(issue_file, group, vulnerabilities):
     f"{group['order']}-{group['name']}-{issue_file.stem}"
   )
 
-  # replace '!REF:IMG:<ID>!' with '!REF:IMG:<issue label>-<ID>!'
-  for evidence in issue['evidence']:
-    description = re.sub(
-      r'!REF:IMG:([^!]+)!',
-      f"!REF:IMG:{issue['label']}-\\1!",
-      evidence['description']
+  # replace '!REF:<type>:<ID>!' with '!REF:<type>:<issue label>-<ID>!'
+  for id, evidence in issue['evidence'].items():
+    issue['evidence'][id] = re.sub(
+      r'!REF:([^:]+):([^!]+)!',
+      f"!REF:\\1:{issue['label']}-\\2!",
+      evidence
     )
-    evidence['description'] = description
 
   # parse CVSS vector
-  if 'cvss' in issue['severity']:
+  if issue['severity']['cvss']:
     metrics = []
     for metric in issue['severity']['cvss'].split('/'):
       metrics.append(metric.split(':')[1])
     issue['severity']['cvss'] = metrics
 
   # parse DREAD vector
-  if 'dread' in issue['severity']:
+  if issue['severity']['dread']:
     metrics = []
     for metric in issue['severity']['dread'].split('/'):
       metrics.append(metric.split(':')[1])
@@ -118,7 +169,7 @@ def load_issue(issue_file, group, vulnerabilities):
 def load_issue_group(path, group, vulnerabilities):
   issues = []
 
-  for issue_file in path.glob('*.yaml'):
+  for issue_file in path.glob('*.md'):
     issues.append(load_issue(issue_file, group, vulnerabilities))
 
   return issues
@@ -148,7 +199,7 @@ def load_issues(path, vulnerabilities):
         'graphics_path': str(path.parent.relative_to('.'))
       }
       
-      if path.suffix == '.yaml':
+      if path.suffix == '.md':
         issues.append(load_issue(path, group, vulnerabilities))
   
   return issues
@@ -172,13 +223,20 @@ def markdown2latex(content):
   latex = process.stdout
 
   # replace '!REF:<type>:<ID>!' with '\ref{<type>:<ID>}'
-  updated_latex = re.sub(
+  return re.sub(
     r'!REF:([^:]+):([^!]+)!',
     r'\\ref{\1:\2}',
     latex
   )
 
-  return updated_latex
+def load_vulnerabilities(path):
+  vulnerabilities = {}
+
+  for vulnerability_file in path.glob('**/*.md'):
+    vulnerability = load_file(vulnerability_file)
+    vulnerabilities[tuple(vulnerability['id'])] = vulnerability
+
+  return vulnerabilities
 
 def process(args):
   global VERBOSE
