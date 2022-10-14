@@ -1,6 +1,6 @@
 # report generator
 
-Create beautiful pentest reports from Markdown and YAML documents.
+Create beautiful pentest reports from Markdown documents.
 
 <img src="results/report.png" width="80%">
 
