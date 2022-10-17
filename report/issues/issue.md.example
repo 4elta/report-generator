@@ -18,7 +18,7 @@ The following properties of the `issue` object are optional:
 
 Just be sure that you are referencing an existing vulnerability (i.e. with the `id` property)!
 
-You can overwrite any of the above properties by providing them in the issue YAML document.
+You can overwrite any of the above properties by providing them in the issue Markdown document.
 
 # evidence
 

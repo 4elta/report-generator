@@ -352,11 +352,11 @@ The following tools have been used during the engagement:
       \severitygauge{\VAR{ issue.severity.number }}{\VAR{ issue.severity.number }\BLOCK{ if issue.severity.class } (\VAR{ issue.severity.class|lower })\BLOCK{ endif }}
 
       \BLOCK{ if issue.severity.cvss }
-        \CVSS\BLOCK{ for metric in issue.severity.cvss }{\VAR{ metric }}\BLOCK{ endfor }  
+        \CVSS{\VAR{ issue.severity.cvss|join('}{') }}  
       \BLOCK{ endif }
 
       \BLOCK{ if issue.severity.dread }
-        \DREAD\BLOCK{ for metric in issue.severity.dread }{\VAR{ metric }}\BLOCK{ endfor }  
+        \DREAD{\VAR{ issue.severity.dread|join('}{') }}  
       \BLOCK{ endif }
     \end{center}
 
