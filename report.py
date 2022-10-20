@@ -83,10 +83,10 @@ def parse_content(content, section_level):
     if not section:
       continue
 
-    match = re.search(r'^(?P<name>.+?)$\s+(?P<content>.+)\s+', section, flags=re.MULTILINE|re.DOTALL)
+    match = re.search(r'^(?P<name>.+?)$\s+(?P<content>.+)\s*', section, flags=re.MULTILINE|re.DOTALL)
     if match:
-      section_name = match.group('name')
-      section_content = match.group('content')
+      section_name = match.group('name').strip()
+      section_content = match.group('content').strip()
 
       sections[section_name] = section_content
 
@@ -122,6 +122,13 @@ def load_issue(issue_file, group, vulnerabilities):
   issue['class'] = issue['id'][0]
   issue['group'] = group
 
+  # fill in 'description', 'recommendations', 'references' from vulnerability library
+  if issue['id'] in vulnerabilities:
+    vulnerability = vulnerabilities[issue['id']]
+    for key, value in vulnerability.items():
+      if key not in issue:
+        issue[key] = vulnerability[key]
+
   if group['name']:
     issue['title'] = f"[{group['name']}] {issue['title']}"
 
@@ -133,11 +140,11 @@ def load_issue(issue_file, group, vulnerabilities):
     f"{group['order']}-{group['name']}-{issue_file.stem}"
   )
 
-  # replace '!REF:<type>:<ID>!' with '!REF:<type>:<issue label>-<ID>!'
+  # replace '!REF:fig:<ID>!' with '!REF:fig:<issue label>-<ID>!'
   for id, evidence in issue['evidence'].items():
     issue['evidence'][id] = re.sub(
-      r'!REF:([^:]+):([^!]+)!',
-      f"!REF:\\1:{issue['label']}-\\2!",
+      r'!REF:fig:([^!]+)!',
+      f"!REF:fig:{issue['label']}-\\1!",
       evidence
     )
 
@@ -155,13 +162,6 @@ def load_issue(issue_file, group, vulnerabilities):
       metrics.append(metric.split(':')[1])
     issue['severity']['dread'] = metrics
   
-  # fill in 'description', 'recommendations', 'references' from vulnerability library
-  if issue['id'] in vulnerabilities:
-    vulnerability = vulnerabilities[issue['id']]
-    for key, value in vulnerability.items():
-      if key not in issue:
-        issue[key] = vulnerability[key]
-
   log(json.dumps(issue, indent=2))
 
   return issue
@@ -188,7 +188,7 @@ def load_issues(path, vulnerabilities):
       group = {
         'order': group_order,
         'name': group_name,
-        'graphics_path': str(path.relative_to('.'))
+        'graphics_path': str(path.relative_to('.')) + '/'
       }
 
       issues += load_issue_group(path, group, vulnerabilities)
@@ -196,7 +196,7 @@ def load_issues(path, vulnerabilities):
       group = {
         'order': '0',
         'name': None,
-        'graphics_path': str(path.parent.relative_to('.'))
+        'graphics_path': str(path.parent.relative_to('.')) + '/'
       }
       
       if path.suffix == '.md':
@@ -222,10 +222,10 @@ def markdown2latex(content):
 
   latex = process.stdout
 
-  # replace '!REF:<type>:<ID>!' with '\ref{<type>:<ID>}'
+  # replace '!REF:<ID>!' with '\ref{<ID>}'
   return re.sub(
-    r'!REF:([^:]+):([^!]+)!',
-    r'\\ref{\1:\2}',
+    r'!REF:([^!]+)!',
+    r'\\ref{\1}',
     latex
   )
 
