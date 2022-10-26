@@ -26,7 +26,7 @@ $ sudo apt install texlive-full pandoc
   * put screenshots right next to the issue file
   * you can structure a pentest into groups: put the issues into folders (e.g. `report/issues/1 - EXAMPLE/`)
 4. add vulnerability templates to `report/vulnerabilities/`
-5. fill *required info*, *provided info*, *tools*, *limitations* and *summary* documents
+5. adapt `tools.md`, `limitations.md` and `summary.md`
 6. create the PDF report
 
 ```text
