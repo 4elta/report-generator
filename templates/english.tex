@@ -1,135 +1,4 @@
-\documentclass[a4paper]{article}
-
-\usepackage[margin=3cm]{geometry}
-
-\usepackage[english]{babel}
-
-\usepackage{fancyhdr}
-
-\usepackage[utf8]{inputenc}
-
-\usepackage[pdftex]{graphicx}
-%\setkeys{Gin}{width=0.9\textwidth} % globally set image width to 90% of the text width
-
-\usepackage{xcolor}
-
-% create diagrams
-\usepackage{tikz}
-
-%\usepackage{hyperref}
-\usepackage[pdftex,
-            pdfauthor={Secure by Default, Inc.},
-            pdftitle={Penetration Test Report},
-            pdfsubject={\VAR{ project.name }},
-            pdfkeywords={},
-            pdfproducer={LaTeX},
-            pdfcreator={pdflatex}]{hyperref}
-            
-% inline code
-\newcommand{\passthrough}[1]{\lstset{mathescape=false}#1\lstset{mathescape=true}}
-
-% define level-4 section
-\usepackage{titlesec}
-\setcounter{secnumdepth}{4}
-\titleformat{\paragraph}
-  {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
-  \titlespacing*{\paragraph}
-  {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
-
-% Pandoc uses '\tightlist' inside list environments
-\def\tightlist{}
-
-% disable indentation of first line of paragraphs
-\usepackage{parskip}
-
-% nice code listings
-\usepackage{listings}
-\lstset{
-  %backgroundcolor=\color{lightgray},
-  basicstyle=\footnotesize\ttfamily,
-  upquote=true,
-  linewidth=\textwidth,
-  breaklines,
-  breakatwhitespace,
-  frame=single,
-  numbers=none,
-}
-
-\newcommand{\severitygauge}[3][1]{
-  \begin{tikzpicture}[scale=#1]
-    \path (-3,0) (13,0); % this path will define the bounding box
-    
-    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
-    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
-
-    \path (0, -0.2) node[anchor=north, color=black] {0};
-    \path (10, -0.2) node[anchor=north, color=black] {10};
-    \path (#2, 0.2) node[anchor=south]{#3};
-  \end{tikzpicture}
-}
-
-\newcommand{\minimalseveritygauge}[2][1]{
-  \begin{tikzpicture}[scale=#1, baseline=-0.5ex]
-    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
-    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
-  \end{tikzpicture}
-}
-
-% conditionals (in macros)
-\usepackage{etoolbox}
-
-\newcommand{\highlight}[3]{
-  \ifstrequal{#2}{#3}{\framebox{#1}}{#1}
-}
-
-\newcommand{\CVSS}[9]{
-  \begin{tabular}{ll}
-    \textbf{Attack Vector} & \textbf{Scope}
-    \\
-    \highlight{Network}{N}{#2} \hspace{0.5em} \highlight{Adjacent}{A}{#2} \hspace{0.5em} \highlight{Local}{L}{#2} \hspace{0.5em} \highlight{Physical}{P}{#2}
-    \hspace{2em}
-    &
-    \highlight{Unchanged}{U}{#6} \hspace{0.5em} \highlight{Changed}{C}{#6}
-    \vspace{1.5ex}
-    \\
-    \textbf{Attack Complexity} & \textbf{Confidentiality}
-    \\
-    \highlight{Low}{L}{#3} \hspace{0.5em} \highlight{High}{H}{#3}
-    \hspace{2em}
-    &
-    \highlight{None}{N}{#7} \hspace{0.5em} \highlight{Low}{L}{#7} \hspace{0.5em} \highlight{High}{H}{#7}
-    \vspace{1.5ex}
-    \\
-    \textbf{Privileges Required} & \textbf{Integrity}
-    \\
-    \highlight{None}{N}{#4} \hspace{0.5em} \highlight{Low}{L}{#4} \hspace{0.5em} \highlight{High}{H}{#4}
-    \hspace{2em}
-    &
-    \highlight{None}{N}{#8} \hspace{0.5em} \highlight{Low}{L}{#8} \hspace{0.5em} \highlight{High}{H}{#8}
-    \vspace{1.5ex}
-    \\    
-    \textbf{User Interaction} & \textbf{Availability}
-    \\
-    \highlight{None}{N}{#5} \hspace{0.5em} \highlight{Required}{R}{#5}
-    \hspace{2em}
-    &
-    \highlight{None}{N}{#9} \hspace{0.5em} \highlight{Low}{L}{#9} \hspace{0.5em} \highlight{High}{H}{#9}
-  \end{tabular}
-}
-
-\newcommand{\DREAD}[5]{
-  \begin{tabular}{lccc}
-    \textbf{Damage}          & \highlight{Low}{L}{#1} & \highlight{Medium}{M}{#1} & \highlight{High}{H}{#1} \\
-    \textbf{Reliability}     & \highlight{Low}{L}{#2} & \highlight{Medium}{M}{#2} & \highlight{High}{H}{#2} \\
-    \textbf{Exploitability}  & \highlight{Low}{L}{#3} & \highlight{Medium}{M}{#3} & \highlight{High}{H}{#3} \\
-    \textbf{Affected Users}  & \highlight{Low}{L}{#4} & \highlight{Medium}{M}{#4} & \highlight{High}{H}{#4} \\
-    \textbf{Discoverability} & \highlight{Low}{L}{#5} & \highlight{Medium}{M}{#5} & \highlight{High}{H}{#5} 
-  \end{tabular}
-}
-
-% nicer tables
-\setlength{\tabcolsep}{10pt} % increase horizontal spacing; default value: 6pt
-\renewcommand{\arraystretch}{1.5} % increase vertical spacing; default value: 1
+\BLOCK{ include "preamble.tex" }
 
 \begin{document}
 
@@ -190,7 +59,7 @@ In accordance with the customer the following types of penetration tests have be
 
 \begin{itemize}
   \BLOCK{ for service in project.services }
-    \item \VAR{ service|trim }
+    \item \VAR{ service|markdown2latex }
   \BLOCK{ endfor }
 \end{itemize}
 
@@ -198,18 +67,18 @@ The following vulnerability classes have been found:
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ll}
-    \textbf{Class} & \textbf{Issues} \\
+  \begin{tabular}{llr}
+    \textbf{Class} & \multicolumn{2}{l}{\textbf{Issues}} \\
     \hline
     \BLOCK{ for class, items in issues|groupby("class") }
-      \VAR{ class|title } & \BLOCK{ for issue in items }\(|\)\BLOCK{ endfor } \\
+      \VAR{ class|title } & $\BLOCK{ for issue in items }\vert\BLOCK{ endfor }$ & \VAR{ items|length } \\
     \BLOCK{ endfor }
     \hline
-    \textbf{Total} & \textbf{\VAR{ issues|length }}
+    \textbf{Total} & $\BLOCK{ for issue in issues }\vert\BLOCK{ endfor }$ & \textbf{\VAR{ issues|length }}
   \end{tabular}
 \end{table}
 
-Vulnerabilities with severity scores between \VAR{ severity_range.min } and \VAR{ severity_range.max } (both out of 10) have been found.
+Vulnerabilities with severity scores between \VAR{ severity_range.min } and \VAR{ severity_range.max } (on a scale from 0--10) have been found.
 A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 \VAR{ summary|markdown2latex }
@@ -225,7 +94,7 @@ In accordance with the customer the following types of penetration tests have be
 
 \begin{itemize}
   \BLOCK{ for service in project.services }
-    \item \VAR{ service|trim }
+    \item \VAR{ service|markdown2latex }
   \BLOCK{ endfor }
 \end{itemize}
 
@@ -272,20 +141,28 @@ Adipisci quo architecto ex fugit dolorem.
 Inventore soluta perspiciatis minus dolores dolore ipsam iste tempora.
 Vel et sunt suscipit praesentium vitae voluptatem sequi inventore.
 
-\BLOCK{ if required_info }
-  \subsection{Required Information}
+\BLOCK{ if project.requirements }
+  \subsection{Requirements}
 
-  Secure By Default has asked for the following information to be provided:
+  In order to conduct this penetration test, Secure By Default required the following:
 
-  \VAR{ required_info|markdown2latex }
+  \begin{itemize}
+    \BLOCK{ for req in project.requirements }
+      \item \VAR{ req|markdown2latex }
+    \BLOCK{ endfor }
+  \end{itemize}
 \BLOCK{ endif }
 
-\BLOCK{ if provided_info }
+\BLOCK{ if project.provided_information }
   \subsection{Provided Information}
 
   The customer has provided the following additional information:
 
-  \VAR{ provided_info|markdown2latex }
+  \begin{itemize}
+    \BLOCK{ for info in project.provided_information }
+      \item \VAR{ info|markdown2latex }
+    \BLOCK{ endfor }
+  \end{itemize}
 \BLOCK{ endif }
 
 \BLOCK{ if limitations }
@@ -310,12 +187,12 @@ The following tools have been used during the engagement:
 \BLOCK{ for group in groups }
   \begin{table}[h]
     \centering
-    \BLOCK{ if group.name }\caption{Issues of component ``\VAR{ group.name }''.}\BLOCK{ endif }
+    \BLOCK{ if group.name }\caption{Issues of component ``\VAR{ group.name }''.}\BLOCK{ else }\caption{Issues.}\BLOCK{ endif }
     \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
       \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
-        \hyperref[\VAR{ issue.label }]{\VAR{ issue.title }} & \minimalseveritygauge[0.2]{\VAR{ issue.severity.number }} \VAR{ issue.severity.number } (\VAR{ issue.severity.class|lower }) \\
+        \hyperref[\VAR{ issue.label }]{\VAR{ issue.title }} & \minimalseveritygauge[0.2]{\VAR{ issue.severity.number }} \VAR{ issue.severity.number } \\
       \BLOCK{ endfor }
     \end{tabular}
   \end{table}
@@ -323,12 +200,10 @@ The following tools have been used during the engagement:
 
 \BLOCK{ for group in groups }
 
-  % specify directory/directories where LaTeX should look for images
-  \graphicspath{ {\VAR{ group.graphics_path }} }
-
   % loop over each of the group's issues
   \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
-    \clearpage
+    \newpage
+    
     \subsection{\VAR{ issue.title }}
     \label{\VAR{ issue.label }}
 
@@ -349,7 +224,7 @@ The following tools have been used during the engagement:
     \subsubsection{Severity}
 
     \begin{center}
-      \severitygauge{\VAR{ issue.severity.number }}{\VAR{ issue.severity.number }\BLOCK{ if issue.severity.class } (\VAR{ issue.severity.class|lower })\BLOCK{ endif }}
+      \severitygauge{\VAR{ issue.severity.number }}{\VAR{ issue.severity.number }}
 
       \BLOCK{ if issue.severity.cvss }
         \CVSS{\VAR{ issue.severity.cvss|join('}{') }}  
@@ -372,14 +247,21 @@ The following tools have been used during the engagement:
       \VAR{ issue.references|markdown2latex }
     \BLOCK{ endif }
 
-    \BLOCK{ for image in issue.images }
-      \begin{figure}[p]
-        \centering
-        \includegraphics[width=\textwidth]{\VAR{ image.file }}
-        \caption{\VAR{ image.caption }}
-        \label{fig:\VAR{ issue.label }-\VAR{ image.file }}
-      \end{figure}
-    \BLOCK{ endfor }
+    \BLOCK{ if issue.images }
+      \subsubsection{Images}
+      
+      \BLOCK{ for image in issue.images }
+        \begin{minipage}[c]{\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{\VAR{ group.graphics_path }\VAR{ image.file }}
+          \captionof{figure}{\VAR{ image.caption }}
+          \label{\VAR{ issue.label }:\VAR{ image.file }}
+          \vspace{4ex}
+        \end{minipage}
+      \BLOCK{ endfor }
+    \BLOCK{ endif }
+
+    \clearpage
 
   \BLOCK{ endfor }
   

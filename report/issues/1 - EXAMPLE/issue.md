@@ -52,7 +52,7 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 ```
 
-Ut quisquam et a cupiditate (see Figure !REF:fig:issue.jpg!).
+Ut quisquam et a cupiditate (see Figure !REF:1:EXAMPLE:issue.md:issue.jpg!).
 
 **Severity: critical**
       

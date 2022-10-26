@@ -2,16 +2,24 @@
 
 \usepackage[margin=3cm]{geometry}
 
-\usepackage[english]{babel}
+% the last of the arguments is the default language
+\usepackage[ngerman,english]{babel}
 
+% header and footer
 \usepackage{fancyhdr}
 
 \usepackage[utf8]{inputenc}
 
 \usepackage[pdftex]{graphicx}
-%\setkeys{Gin}{width=0.9\textwidth} % globally set image width to 90% of the text width
+
+% we need to use 'minipage' for figures (instead of the 'figure' environment).
+% hence, we need the 'captionof' command (part of the 'caption' package).
+\usepackage{caption}
 
 \usepackage{xcolor}
+
+% code background
+\definecolor{code}{gray}{.95}
 
 % create diagrams
 \usepackage{tikz}
@@ -26,7 +34,7 @@
             pdfcreator={pdflatex}]{hyperref}
             
 % inline code
-\newcommand{\passthrough}[1]{\lstset{mathescape=false}#1\lstset{mathescape=true}}
+\newcommand{\passthrough}[1]{\colorbox{code}{\lstset{mathescape=false}#1}}
 
 % define level-4 section
 \usepackage{titlesec}
@@ -45,7 +53,7 @@
 % nice code listings
 \usepackage{listings}
 \lstset{
-  %backgroundcolor=\color{lightgray},
+  backgroundcolor=\color{code},
   basicstyle=\footnotesize\ttfamily,
   upquote=true,
   linewidth=\textwidth,
@@ -62,8 +70,8 @@
     \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
     \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
 
-    \path (0, -0.2) node[anchor=north, color=black] {0};
-    \path (10, -0.2) node[anchor=north, color=black] {10};
+    \path (0, -0.2) node[anchor=north]{0};
+    \path (10, -0.2) node[anchor=north]{10};
     \path (#2, 0.2) node[anchor=south]{#3};
   \end{tikzpicture}
 }
@@ -130,7 +138,6 @@
 % nicer tables
 \setlength{\tabcolsep}{10pt} % increase horizontal spacing; default value: 6pt
 \renewcommand{\arraystretch}{1.5} % increase vertical spacing; default value: 1
-
 \begin{document}
 
 % header and footer
@@ -190,24 +197,26 @@ In accordance with the customer the following types of penetration tests have be
 
 \begin{itemize}
       \item pentest against web applications
+
       \item pentest against IP hosts
+
   \end{itemize}
 
 The following vulnerability classes have been found:
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ll}
-    \textbf{Class} & \textbf{Issues} \\
+  \begin{tabular}{llr}
+    \textbf{Class} & \multicolumn{2}{l}{\textbf{Issues}} \\
     \hline
-          Class A & \(|\)\(|\) \\
-          Class B & \(|\) \\
+          Class A & $\vert\vert$ & 2 \\
+          Class B & $\vert$ & 1 \\
         \hline
-    \textbf{Total} & \textbf{3}
+    \textbf{Total} & $\vert\vert\vert$ & \textbf{3}
   \end{tabular}
 \end{table}
 
-Vulnerabilities with severity scores between 6.0 and 9.8 (both out of 10) have been found.
+Vulnerabilities with severity scores between 6.0 and 9.8 (on a scale from 0--10) have been found.
 A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 Quisque ut finibus mauris.
@@ -236,7 +245,9 @@ In accordance with the customer the following types of penetration tests have be
 
 \begin{itemize}
       \item pentest against web applications
+
       \item pentest against IP hosts
+
   \end{itemize}
 
 \subsection{Personnel}
@@ -287,18 +298,6 @@ Nam est neque ipsam quis voluptatum.
 Adipisci quo architecto ex fugit dolorem.
 Inventore soluta perspiciatis minus dolores dolore ipsam iste tempora.
 Vel et sunt suscipit praesentium vitae voluptatem sequi inventore.
-
-  \subsection{Required Information}
-
-  Secure By Default has asked for the following information to be provided:
-
-  \begin{itemize}
-\tightlist
-\item
-  access to the web application: fulfilled
-\item
-  credentials for the web application: fulfilled
-\end{itemize}
 
 
 
@@ -356,11 +355,11 @@ The following tools have been used during the engagement:
 
   \begin{table}[h]
     \centering
-        \begin{tabular}{ll}
+    \caption{Issues.}    \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[0-None-issue]{Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{9.8} 9.8 (critical) \\
-              \hyperref[0-None-issue2]{Aenean Gravida Pulvinar Lacus} & \minimalseveritygauge[0.2]{6.0} 6.0 (medium) \\
+              \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{9.8} 9.8 \\
+              \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \minimalseveritygauge[0.2]{6.0} 6.0 \\
           \end{tabular}
   \end{table}
   \begin{table}[h]
@@ -368,18 +367,16 @@ The following tools have been used during the engagement:
     \caption{Issues of component ``EXAMPLE''.}    \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[1-EXAMPLE-issue]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{6.5} 6.5 (medium) \\
+              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{6.5} 6.5 \\
           \end{tabular}
   \end{table}
 
 
-  % specify directory/directories where LaTeX should look for images
-  \graphicspath{ {report/issues/} }
-
   % loop over each of the group's issues
-      \clearpage
+      \newpage
+    
     \subsection{Lorem Ipsum Dolor sit Amet}
-    \label{0-None-issue}
+    \label{issue.md}
 
     Repellat corporis aut odio veniam non autem vel.
 Repudiandae rerum et unde. Accusamus quae et repellat.
@@ -425,7 +422,7 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 \end{lstlisting}
 
-You can link to images: see Figure \ref{fig:0-None-issue-issue.png}.
+You can link to images: see Figure \ref{issue.md:issue.png}.
 
 \textbf{Severity: critical}
 
@@ -435,7 +432,7 @@ You can link to images: see Figure \ref{fig:0-None-issue-issue.png}.
 Magni eveniet quas omnis culpa assumenda doloribus voluptas.
 Vero repellat sed vero facere error ducimus et.
 
-You can also link to other issues: see Section \ref{1-EXAMPLE-issue}.
+You can also link to other issues: see Section \ref{1:EXAMPLE:issue.md}.
 
 \textbf{Severity: low}
 
@@ -454,7 +451,7 @@ You can also link to other issues: see Section \ref{1-EXAMPLE-issue}.
     \subsubsection{Severity}
 
     \begin{center}
-      \severitygauge{9.8}{9.8 (critical)}
+      \severitygauge{9.8}{9.8}
 
               \CVSS{3.1}{N}{L}{N}{N}{U}{H}{H}{H}  
       
@@ -486,16 +483,22 @@ You can also link to other issues: see Section \ref{1-EXAMPLE-issue}.
 \end{itemize}
 
     
-          \begin{figure}[p]
-        \centering
-        \includegraphics[width=\textwidth]{issue.png}
-        \caption{Vero repellat sed vero facere error ducimus et.}
-        \label{fig:0-None-issue-issue.png}
-      \end{figure}
+          \subsubsection{Images}
+      
+              \begin{minipage}[c]{\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{report/issues/issue.png}
+          \captionof{figure}{Vero repellat sed vero facere error ducimus et.}
+          \label{issue.md:issue.png}
+          \vspace{4ex}
+        \end{minipage}
+          
+    \clearpage
+
+      \newpage
     
-      \clearpage
     \subsection{Aenean Gravida Pulvinar Lacus}
-    \label{0-None-issue2}
+    \label{issue2.md}
 
     Nullam gravida urna eget massa sagittis sodales.
 Aenean venenatis convallis diam.
@@ -544,7 +547,7 @@ Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
     \subsubsection{Severity}
 
     \begin{center}
-      \severitygauge{6.0}{6.0 (medium)}
+      \severitygauge{6.0}{6.0}
 
       
               \DREAD{M}{H}{H}{L}{M}  
@@ -575,15 +578,15 @@ Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
 
     
     
+    \clearpage
+
     
 
-  % specify directory/directories where LaTeX should look for images
-  \graphicspath{ {report/issues/1 - EXAMPLE/} }
-
   % loop over each of the group's issues
-      \clearpage
+      \newpage
+    
     \subsection{[EXAMPLE] Lorem Ipsum Dolor sit Amet}
-    \label{1-EXAMPLE-issue}
+    \label{1:EXAMPLE:issue.md}
 
     Repellat corporis aut odio veniam non autem vel.
 Repudiandae rerum et unde. Accusamus quae et repellat.
@@ -629,7 +632,7 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 \end{lstlisting}
 
-Ut quisquam et a cupiditate (see Figure \ref{fig:1-EXAMPLE-issue-issue.jpg}).
+Ut quisquam et a cupiditate (see Figure \ref{1:EXAMPLE:issue.md:issue.jpg}).
 
 \textbf{Severity: critical}
 
@@ -656,7 +659,7 @@ Vero repellat sed vero facere error ducimus et.
     \subsubsection{Severity}
 
     \begin{center}
-      \severitygauge{6.5}{6.5 (medium)}
+      \severitygauge{6.5}{6.5}
 
               \CVSS{3.1}{N}{L}{N}{N}{U}{L}{L}{N}  
       
@@ -688,13 +691,18 @@ Vero repellat sed vero facere error ducimus et.
 \end{itemize}
 
     
-          \begin{figure}[p]
-        \centering
-        \includegraphics[width=\textwidth]{issue.jpg}
-        \caption{Vero repellat sed vero facere error ducimus et.}
-        \label{fig:1-EXAMPLE-issue-issue.jpg}
-      \end{figure}
-    
+          \subsubsection{Images}
+      
+              \begin{minipage}[c]{\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{report/issues/1 - EXAMPLE/issue.jpg}
+          \captionof{figure}{Vero repellat sed vero facere error ducimus et.}
+          \label{1:EXAMPLE:issue.md:issue.jpg}
+          \vspace{4ex}
+        \end{minipage}
+          
+    \clearpage
+
     
 
 \end{document}

@@ -32,7 +32,7 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 ```
 
-You can also add screenshots (see at the end of this file); reference them with !REF:IMG:issue.png!
+You can also add screenshots (see at the end of this file); reference them with !REF:issue.md:image.png!
 
 **Severity: Critical**
 
@@ -64,7 +64,5 @@ Give detailed steps on how to mitigate the vulnerability.
 
 # images
 
-* [Caption text.](issue.png)
-* [Some other caption.](something.jpg)
-  - file: something.jpg
-    caption: Some other caption.
+* ![Image caption.](image.png)
+* ![Caption text.](another_image.png)

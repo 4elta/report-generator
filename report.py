@@ -27,18 +27,76 @@ def read_file(path):
     content = f.read()
   return content.strip()
 
+def parse_severity_vector(vector_string):
+  '''
+  parse severity vector (e.g. CVSS, DREAD):
+
+    CVSS:3.1/AV:x/...
+
+  return:
+
+    [ 3.1, x, ... ]
+  '''
+
+  if vector_string is None:
+    return
+
+  metrics = []
+  for metric in vector_string.split('/'):
+    metrics.append(metric.split(':')[1])
+
+  return metrics
+
 def parse_severity(content):
-  match = re.search(r'(?P<number>\d(\.\d+))\s+(\((?P<class>[^)]+)\))?\s+(((?P<cvss>CVSS:[^/]+(/\w+:.)+))|((?P<dread>D:./R:./E:./A:./D:.)))?\s*', content, flags=re.MULTILINE)
+  '''
+  parse the severity section:
+
+    <number> (<class>)?
+    (<CVSS>|<DREAD>)?
+
+  return:
+
+    {
+      "number": "x.y",
+      "class": "(none|low|medium|...)",
+      "cvss": [3.1, x, ...],
+      "dread": [x, y, z, ...]
+    }
+  '''
+  
+  match = re.search(r'(?P<number>\d(\.\d+)?)\s*(\((?P<class>[^)]+)\))?\s*(((?P<cvss>CVSS:[^/]+(/\w+:.)+))|((?P<dread>D:./R:./E:./A:./D:.)))?\s*', content, flags=re.MULTILINE)
 
   if match:
     return {
       'number': match.group('number'),
       'class': match.group('class'),
-      'cvss': match.group('cvss'),
-      'dread': match.group('dread')
+      'cvss': parse_severity_vector(match.group('cvss')),
+      'dread': parse_severity_vector(match.group('dread'))
     }
 
 def parse_images(image_strings):
+  '''
+  parse an array of Markdown image includes:
+
+    [
+      "![Image Caption.](image.png)",
+      "![Another Caption.](another_image.png)"
+    ]
+
+  return:
+
+    [
+      {
+        "caption": "Image Caption.",
+        "file": "image.png"
+      },
+      {
+        "caption": "Another Caption.",
+        "file": "another_image.png"
+      }
+    ]
+  '''
+  
   images = []
   
   for image in image_strings:
@@ -57,6 +115,20 @@ def parse_images(image_strings):
   return images
   
 def parse_unordered_list(content):
+  '''
+  parse the content as an unordered list:
+
+    * list item one
+    - list item two
+
+  return:
+
+    [
+      "list item one",
+      "list item two"
+    ]
+  '''
+  
   array = []
 
   for item in content.split('\n'):
@@ -72,6 +144,25 @@ def parse_unordered_list(content):
   return array
 
 def parse_content(content, section_level):
+  '''
+  parse the vulnerability/issue document:
+
+    # section one
+
+    section content
+
+    # section two
+
+    more content
+
+  return:
+
+    {
+      "section one": "section content",
+      "section two": "more content"
+    }
+  '''
+  
   sections = {}
 
   patterns = {
@@ -83,12 +174,12 @@ def parse_content(content, section_level):
     if not section:
       continue
 
-    match = re.search(r'^(?P<name>.+?)$\s+(?P<content>.+)\s*', section, flags=re.MULTILINE|re.DOTALL)
+    match = re.search(r'^(?P<name>.+?)$\s+(?P<content>.+)\s+', section, flags=re.MULTILINE|re.DOTALL)
     if match:
-      section_name = match.group('name').strip()
-      section_content = match.group('content').strip()
+      section_name = match.group('name')
+      section_content = match.group('content')
 
-      sections[section_name] = section_content
+      sections[section_name] = section_content.strip()
 
       if section_level == 1:
         if section_name == 'id':
@@ -100,6 +191,8 @@ def parse_content(content, section_level):
         if section_name == 'severity':
           sections[section_name] = parse_severity(section_content)
 
+        # images are included in a separate section (i.e. `# images`) at the end of the issue document.
+        # make sure to include the images in an unordered list (e.g. `* ![caption](image.png)`)
         if section_name == 'images':
           sections[section_name] = parse_images(parse_unordered_list(section_content))
       
@@ -112,7 +205,6 @@ def load_file(path):
   return parse_content(content, 1)
   
 def load_issue(issue_file, group, vulnerabilities):
-  #issue = yaml.safe_load(open(issue_file))
   issue = load_file(issue_file)
   
   log(f"\nissue ({issue_file}):\n")
@@ -135,33 +227,11 @@ def load_issue(issue_file, group, vulnerabilities):
   # the issue's label, used for referencing in LaTeX (`\lable{the_lable}`).
   # use the file's name (excl the extension), replace all non-word characters with an underscore.
   issue['label'] = re.sub(
-    r'[^\w-]',
+    r'[^\w:.-]',
     '_',
-    f"{group['order']}-{group['name']}-{issue_file.stem}"
+    f"{group['order']}:{group['name']}:{issue_file.name}" if group['name'] else issue_file.name
   )
 
-  # replace '!REF:fig:<ID>!' with '!REF:fig:<issue label>-<ID>!'
-  for id, evidence in issue['evidence'].items():
-    issue['evidence'][id] = re.sub(
-      r'!REF:fig:([^!]+)!',
-      f"!REF:fig:{issue['label']}-\\1!",
-      evidence
-    )
-
-  # parse CVSS vector
-  if issue['severity']['cvss']:
-    metrics = []
-    for metric in issue['severity']['cvss'].split('/'):
-      metrics.append(metric.split(':')[1])
-    issue['severity']['cvss'] = metrics
-
-  # parse DREAD vector
-  if issue['severity']['dread']:
-    metrics = []
-    for metric in issue['severity']['dread'].split('/'):
-      metrics.append(metric.split(':')[1])
-    issue['severity']['dread'] = metrics
-  
   log(json.dumps(issue, indent=2))
 
   return issue
@@ -294,8 +364,6 @@ def process(args):
     project = project,
     severity_range = severity_range,
     summary = read_file(pathlib.Path(REPORT_DIR, 'summary.md')),
-    required_info = read_file(pathlib.Path(REPORT_DIR, 'required info.md')),
-    provided_info = read_file(pathlib.Path(REPORT_DIR, 'provided info.md')),
     limitations = read_file(pathlib.Path(REPORT_DIR, 'limitations.md')),
     tools = read_file(pathlib.Path(REPORT_DIR, 'tools.md')),
     issues = issues,
@@ -314,40 +382,25 @@ def process(args):
       f.write(report)
 
   print(f"compiling '{report_file}' ...")
-  print("first run ...")
 
-  try:
-    subprocess.run(
-      [
-        'pdflatex',
-        '-interaction', 'batchmode',
-        '-jobname', 'report',
-        '-output-directory', RESULTS_DIR,
-        report_file
-      ],
-      check = True,
-      capture_output = True
-    )
-  except:
-    sys.exit(f"error typsetting LaTeX document: please check '{RESULTS_DIR}/report.log'.")
+  for i in range(1,3):
+    print(f"run #{i} ...")
+
+    try:
+      subprocess.run(
+        [
+          'pdflatex',
+          '-interaction', 'batchmode',
+          '-jobname', 'report',
+          '-output-directory', RESULTS_DIR,
+          report_file
+        ],
+        check = True,
+        capture_output = True
+      )
+    except:
+      sys.exit(f"error typsetting LaTeX document: please check '{RESULTS_DIR}/report.log'.")
     
-  print("second run ...")
-  
-  try:
-    subprocess.run(
-      [
-        'pdflatex',
-        '-interaction', 'errorstopmode',
-        '-jobname', 'report',
-        '-output-directory', RESULTS_DIR,
-        report_file
-      ],
-      check = True,
-      capture_output = True
-    )
-  except:
-    sys.exit(f"error typsetting LaTeX document: please check '{RESULTS_DIR}/report.log'.")
-
   pdf_report = pathlib.Path(RESULTS_DIR, 'report.pdf')
   print(f"report created at '{pdf_report}'")
   
