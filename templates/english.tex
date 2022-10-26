@@ -63,23 +63,23 @@ In accordance with the customer the following types of penetration tests have be
   \BLOCK{ endfor }
 \end{itemize}
 
-The following vulnerability classes have been found:
+Vulnerabilities with severity scores between \VAR{ severity_range.min } and \VAR{ severity_range.max } (on a scale from 0--10) have been found (see Table~\ref{tab:vulnerabilities}).
+A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 \begin{table}[h!]
   \centering
+  \caption{Issues found during this penetration test, grouped by vulnerability class.}
+  \label{tab:vulnerabilities}
   \begin{tabular}{llr}
     \textbf{Class} & \multicolumn{2}{l}{\textbf{Issues}} \\
     \hline
     \BLOCK{ for class, items in issues|groupby("class") }
-      \VAR{ class|title } & $\BLOCK{ for issue in items }\vert\BLOCK{ endfor }$ & \VAR{ items|length } \\
+      \VAR{ class|title } & \BLOCK{ for issue in items|sort(attribute='severity.number', reverse=true) }\microseveritygauge[0.08]{\VAR{ issue.severity.number }}\BLOCK{ endfor } & \VAR{ items|length } \\
     \BLOCK{ endfor }
     \hline
-    \textbf{Total} & $\BLOCK{ for issue in issues }\vert\BLOCK{ endfor }$ & \textbf{\VAR{ issues|length }}
+    \textbf{Total} & ~ & \textbf{\VAR{ issues|length }}
   \end{tabular}
 \end{table}
-
-Vulnerabilities with severity scores between \VAR{ severity_range.min } and \VAR{ severity_range.max } (on a scale from 0--10) have been found.
-A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 \VAR{ summary|markdown2latex }
 
@@ -192,7 +192,7 @@ The following tools have been used during the engagement:
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
       \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
-        \hyperref[\VAR{ issue.label }]{\VAR{ issue.title }} & \minimalseveritygauge[0.2]{\VAR{ issue.severity.number }} \VAR{ issue.severity.number } \\
+        \hyperref[\VAR{ issue.label }]{\VAR{ issue.title }} & \smallseveritygauge[0.2]{\VAR{ issue.severity.number }} \VAR{ issue.severity.number } \\
       \BLOCK{ endfor }
     \end{tabular}
   \end{table}

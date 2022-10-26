@@ -76,10 +76,18 @@
   \end{tikzpicture}
 }
 
-\newcommand{\minimalseveritygauge}[2][1]{
+\newcommand{\smallseveritygauge}[2][1]{
   \begin{tikzpicture}[scale=#1, baseline=-0.5ex]
     \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
     \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+  \end{tikzpicture}
+}
+
+\newcommand{\microseveritygauge}[2][1]{
+  \begin{tikzpicture}[scale=#1]
+    \path (0, 0) (0, 12); % this path will define the bounding box
+    \filldraw[fill=white, draw=black] (-0.5, 0) rectangle (0.5, 10);
+    \filldraw[fill=black, draw=black] (-0.5, 0) rectangle (0.5, #2);
   \end{tikzpicture}
 }
 

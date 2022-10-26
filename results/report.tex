@@ -76,10 +76,18 @@
   \end{tikzpicture}
 }
 
-\newcommand{\minimalseveritygauge}[2][1]{
+\newcommand{\smallseveritygauge}[2][1]{
   \begin{tikzpicture}[scale=#1, baseline=-0.5ex]
     \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
     \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+  \end{tikzpicture}
+}
+
+\newcommand{\microseveritygauge}[2][1]{
+  \begin{tikzpicture}[scale=#1]
+    \path (0, 0) (0, 12); % this path will define the bounding box
+    \filldraw[fill=white, draw=black] (-0.5, 0) rectangle (0.5, 10);
+    \filldraw[fill=black, draw=black] (-0.5, 0) rectangle (0.5, #2);
   \end{tikzpicture}
 }
 
@@ -202,22 +210,22 @@ In accordance with the customer the following types of penetration tests have be
 
   \end{itemize}
 
-The following vulnerability classes have been found:
+Vulnerabilities with severity scores between 6.0 and 9.8 (on a scale from 0--10) have been found (see Table~\ref{tab:vulnerabilities}).
+A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 \begin{table}[h!]
   \centering
+  \caption{Issues found during this penetration test, grouped by vulnerability class.}
+  \label{tab:vulnerabilities}
   \begin{tabular}{llr}
     \textbf{Class} & \multicolumn{2}{l}{\textbf{Issues}} \\
     \hline
-          Class A & $\vert\vert$ & 2 \\
-          Class B & $\vert$ & 1 \\
+          Class A & \microseveritygauge[0.08]{9.8}\microseveritygauge[0.08]{6.5} & 2 \\
+          Class B & \microseveritygauge[0.08]{6.0} & 1 \\
         \hline
-    \textbf{Total} & $\vert\vert\vert$ & \textbf{3}
+    \textbf{Total} & ~ & \textbf{3}
   \end{tabular}
 \end{table}
-
-Vulnerabilities with severity scores between 6.0 and 9.8 (on a scale from 0--10) have been found.
-A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 Quisque ut finibus mauris.
 Etiam mattis nisl nulla, eu iaculis urna tincidunt vitae.
@@ -358,8 +366,8 @@ The following tools have been used during the engagement:
     \caption{Issues.}    \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{9.8} 9.8 \\
-              \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \minimalseveritygauge[0.2]{6.0} 6.0 \\
+              \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \smallseveritygauge[0.2]{9.8} 9.8 \\
+              \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \smallseveritygauge[0.2]{6.0} 6.0 \\
           \end{tabular}
   \end{table}
   \begin{table}[h]
@@ -367,7 +375,7 @@ The following tools have been used during the engagement:
     \caption{Issues of component ``EXAMPLE''.}    \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minimalseveritygauge[0.2]{6.5} 6.5 \\
+              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \smallseveritygauge[0.2]{6.5} 6.5 \\
           \end{tabular}
   \end{table}
 
