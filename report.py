@@ -225,7 +225,7 @@ def load_issue(issue_file, group, vulnerabilities):
     issue['title'] = f"[{group['name']}] {issue['title']}"
 
   # the issue's label, used for referencing in LaTeX (`\lable{the_lable}`).
-  # use the file's name (excl the extension), replace all non-word characters with an underscore.
+  # use the file's name, replace all non-word characters with an underscore.
   issue['label'] = re.sub(
     r'[^\w:.-]',
     '_',
