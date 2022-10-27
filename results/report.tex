@@ -63,29 +63,45 @@
   numbers=none,
 }
 
+% severity gauge
+%
+%              7
+% ||||||||||||||......
+% 0                 10
 \newcommand{\severitygauge}[3][1]{
   \begin{tikzpicture}[scale=#1]
-    \path (-3,0) (13,0); % this path will define the bounding box
-    
+    % bounding box
+    \path (-3,0) (13,0);
+
+    % empty rectangle
     \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
+
+    % filled rectangle, showing the gauge's measurement
     \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
 
+    % range of the gauge
     \path (0, -0.2) node[anchor=north]{0};
     \path (10, -0.2) node[anchor=north]{10};
+
+    % the gauge's measurement as text
     \path (#2, 0.2) node[anchor=south]{#3};
   \end{tikzpicture}
 }
 
-\newcommand{\smallseveritygauge}[2][1]{
+% minimal severity gauge: without range and textual measurement.
+% horizontal
+\newcommand{\minmalseveritygaugeH}[2][1]{
   \begin{tikzpicture}[scale=#1, baseline=-0.5ex]
-    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
-    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+    \filldraw[fill=white, draw=black] (0, -0.3) rectangle (10, 0.3);
+    \filldraw[fill=black, draw=black] (0, -0.3) rectangle (#2, 0.3);
   \end{tikzpicture}
 }
 
-\newcommand{\microseveritygauge}[2][1]{
+% minimal severity gauge: without range and textual measurement.
+% vertical
+\newcommand{\minmalseveritygaugeV}[2][1]{
   \begin{tikzpicture}[scale=#1]
-    \path (0, 0) (0, 12); % this path will define the bounding box
+    \path (0, 0) (0, 12); % bounding box
     \filldraw[fill=white, draw=black] (-0.5, 0) rectangle (0.5, 10);
     \filldraw[fill=black, draw=black] (-0.5, 0) rectangle (0.5, #2);
   \end{tikzpicture}
@@ -220,8 +236,8 @@ A detailed list thereof, including descriptions on how they were found, and reco
   \begin{tabular}{llr}
     \textbf{Class} & \multicolumn{2}{l}{\textbf{Issues}} \\
     \hline
-          Class A & \microseveritygauge[0.08]{9.8}\microseveritygauge[0.08]{6.5} & 2 \\
-          Class B & \microseveritygauge[0.08]{6.0} & 1 \\
+          Class A & \minmalseveritygaugeV[0.08]{9.8}\minmalseveritygaugeV[0.08]{6.5} & 2 \\
+          Class B & \minmalseveritygaugeV[0.08]{6.0} & 1 \\
         \hline
     \textbf{Total} & ~ & \textbf{3}
   \end{tabular}
@@ -366,8 +382,8 @@ The following tools have been used during the engagement:
     \caption{Issues.}    \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \smallseveritygauge[0.2]{9.8} 9.8 \\
-              \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \smallseveritygauge[0.2]{6.0} 6.0 \\
+              \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{9.8} 9.8 \\
+              \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \minmalseveritygaugeH[0.2]{6.0} 6.0 \\
           \end{tabular}
   \end{table}
   \begin{table}[h]
@@ -375,7 +391,7 @@ The following tools have been used during the engagement:
     \caption{Issues of component ``EXAMPLE''.}    \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \smallseveritygauge[0.2]{6.5} 6.5 \\
+              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{6.5} 6.5 \\
           \end{tabular}
   \end{table}
 

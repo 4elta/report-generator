@@ -63,29 +63,45 @@
   numbers=none,
 }
 
+% severity gauge
+%
+%              7
+% ||||||||||||||......
+% 0                 10
 \newcommand{\severitygauge}[3][1]{
   \begin{tikzpicture}[scale=#1]
-    \path (-3,0) (13,0); % this path will define the bounding box
-    
+    % bounding box
+    \path (-3,0) (13,0);
+
+    % empty rectangle
     \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
+
+    % filled rectangle, showing the gauge's measurement
     \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
 
+    % range of the gauge
     \path (0, -0.2) node[anchor=north]{0};
     \path (10, -0.2) node[anchor=north]{10};
+
+    % the gauge's measurement as text
     \path (#2, 0.2) node[anchor=south]{#3};
   \end{tikzpicture}
 }
 
-\newcommand{\smallseveritygauge}[2][1]{
+% minimal severity gauge: without range and textual measurement.
+% horizontal
+\newcommand{\minmalseveritygaugeH}[2][1]{
   \begin{tikzpicture}[scale=#1, baseline=-0.5ex]
-    \filldraw[fill=white, draw=black] (0, -0.1) rectangle (10, 0.1);
-    \filldraw[fill=black, draw=black] (0, -0.1) rectangle (#2, 0.1);
+    \filldraw[fill=white, draw=black] (0, -0.3) rectangle (10, 0.3);
+    \filldraw[fill=black, draw=black] (0, -0.3) rectangle (#2, 0.3);
   \end{tikzpicture}
 }
 
-\newcommand{\microseveritygauge}[2][1]{
+% minimal severity gauge: without range and textual measurement.
+% vertical
+\newcommand{\minmalseveritygaugeV}[2][1]{
   \begin{tikzpicture}[scale=#1]
-    \path (0, 0) (0, 12); % this path will define the bounding box
+    \path (0, 0) (0, 12); % bounding box
     \filldraw[fill=white, draw=black] (-0.5, 0) rectangle (0.5, 10);
     \filldraw[fill=black, draw=black] (-0.5, 0) rectangle (0.5, #2);
   \end{tikzpicture}
