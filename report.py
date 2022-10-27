@@ -334,16 +334,6 @@ def process(args):
   log("\ngroups:\n")
   log(json.dumps(groups, indent=2))
 
-  sorted_issues = sorted(
-    issues,
-    key = lambda issue: issue['severity']['number']
-  )
-
-  severity_range = {
-    'min': sorted_issues[0]['severity']['number'],
-    'max': sorted_issues[-1]['severity']['number']
-  }
-
   env = jinja2.Environment(
     loader = jinja2.FileSystemLoader(searchpath=TEMPLATES_DIR),
     block_start_string = '\BLOCK{', block_end_string = '}',
@@ -362,7 +352,6 @@ def process(args):
 
   report = template.render(
     project = project,
-    severity_range = severity_range,
     summary = read_file(pathlib.Path(REPORT_DIR, 'summary.md')),
     limitations = read_file(pathlib.Path(REPORT_DIR, 'limitations.md')),
     tools = read_file(pathlib.Path(REPORT_DIR, 'tools.md')),

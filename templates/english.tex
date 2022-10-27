@@ -63,18 +63,18 @@ In accordance with the customer the following types of penetration tests have be
   \BLOCK{ endfor }
 \end{itemize}
 
-Vulnerabilities with severity scores between \VAR{ severity_range.min } and \VAR{ severity_range.max } (on a scale from 0--10) have been found (see Table~\ref{tab:vulnerabilities}).
+Vulnerabilities with severity scores between \VAR{ (issues|min(attribute='severity.number')).severity.number } and \VAR{ (issues|max(attribute='severity.number')).severity.number } (on a scale from 0--10) have been found (see Table~\ref{tab:vulnerabilities}).
 A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 \begin{table}[h!]
   \centering
-  \caption{Issues found during this penetration test, grouped by vulnerability class.}
+  \caption{The vulnerability classes, the highest severity, and the number of issues per class.}
   \label{tab:vulnerabilities}
-  \begin{tabular}{llr}
-    \textbf{Class} & \multicolumn{2}{l}{\textbf{Issues}} \\
+  \begin{tabular}{lcr}
+    \textbf{Class} & \textbf{Severity} & \textbf{Issues} \\
     \hline
     \BLOCK{ for class, items in issues|groupby("class") }
-      \VAR{ class|title } & \BLOCK{ for issue in items|sort(attribute='severity.number', reverse=true) }\minmalseveritygaugeV[0.08]{\VAR{ issue.severity.number }}\BLOCK{ endfor } & \VAR{ items|length } \\
+      \VAR{ class|title } & \minmalseveritygaugeH[0.2]{\VAR{ (items|max(attribute='severity.number')).severity.number }} & \VAR{ items|length } \\
     \BLOCK{ endfor }
     \hline
     \textbf{Total} & ~ & \textbf{\VAR{ issues|length }}
