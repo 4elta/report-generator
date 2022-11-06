@@ -187,7 +187,7 @@ The following tools have been used during the engagement:
 \BLOCK{ for group in groups }
   \begin{table}[h]
     \centering
-    \BLOCK{ if group.name }\caption{Issues of component ``\VAR{ group.name }''.}\BLOCK{ else }\caption{Issues.}\BLOCK{ endif }
+    \caption{Vulnerabilities and their severity\BLOCK{ if group.name } (component ``\VAR{ group.name }'')\BLOCK{ endif }.}
     \begin{tabular}{ll}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
