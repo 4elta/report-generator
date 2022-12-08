@@ -71,8 +71,8 @@ Vero repellat sed vero facere error ducimus et.
 
 # severity
 
-6.5 (Medium)
-CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N
+6.4
+CVSS:2/AV:N/AC:L/Au:N/C:P/I:P/A:N
 
 # recommendations
 

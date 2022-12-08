@@ -1,13 +1,15 @@
 # id
 
-* outdatded software
-* apache
+* class of vulnerability
+* subclass
 
 # title
 
-The Vulnerability's Title is Optional
+Vulnerability Title
 
 # description
+
+Describe the vulnerability (not the evidence) as clearly as possible for the customer to unterstand.
 
 The following properties of the `issue` object are optional:
 
@@ -16,7 +18,7 @@ The following properties of the `issue` object are optional:
 * `recommendations`
 * `references`
 
-Just be sure that you are referencing an existing vulnerability (i.e. with the `id` property)!
+Just be sure that you are referencing an existing vulnerability inside your library (i.e. with the `id` property)!
 
 You can overwrite any of the above properties by providing them in the issue Markdown document.
 
@@ -32,15 +34,16 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 ```
 
-You can also add screenshots (see at the end of this file); reference them with !REF:issue.md:image.png!
+You can add screenshots (see at the end of this file); reference them with !REF[<group nr>:<group name>]:<issue filename>:<image filename>!.
+You can also reference other issues: !REF[<group nr>:<group name>]:<issue filename>!.
 
-**Severity: Critical**
+**Severity: 9.8**
 
 ## POST api.example.com/v2/resource
 
 Another evidence ...
 
-**Severity: Low**
+**Severity: 3.1**
       
 # affected assets
 
@@ -51,7 +54,9 @@ Another evidence ...
 
 9.8 (Critical)
 CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+CVSS:2/AV:N/AC:L/Au:N/C:C/I:C/A:C
 D:M/R:H/E:H/A:L/D:M
+
 use either CVSS or DREAD
 
 # recommendations

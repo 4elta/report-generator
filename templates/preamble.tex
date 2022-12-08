@@ -114,7 +114,34 @@
   \ifstrequal{#2}{#3}{\framebox{#1}}{#1}
 }
 
-\newcommand{\CVSS}[9]{
+\newcommand{\CVSStwo}[7]{
+  \begin{tabular}{ll}
+    \textbf{Access Vector} & \textbf{Confidentiality Impact}
+    \\
+    \highlight{Local}{L}{#2} \hspace{0.5em} \highlight{Adjacent Network}{A}{#2} \hspace{0.5em} \highlight{Network}{N}{#2}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#5} \hspace{0.5em} \highlight{Partial}{P}{#5} \hspace{0.5em} \highlight{Complete}{C}{#5}
+    \vspace{1.5ex}
+    \\
+    \textbf{Access Complexity} & \textbf{Integrity Impact}
+    \\
+    \highlight{High}{H}{#3} \hspace{0.5em} \highlight{Medium}{M}{#3} \hspace{0.5em} \highlight{Low}{L}{#3}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#6} \hspace{0.5em} \highlight{Partial}{P}{#6} \hspace{0.5em} \highlight{Complete}{C}{#6}
+    \vspace{1.5ex}
+    \\
+    \textbf{Authentication} & \textbf{Availability Impact}
+    \\
+    \highlight{Multiple}{M}{#4} \hspace{0.5em} \highlight{Single}{S}{#4} \hspace{0.5em} \highlight{None}{N}{#4}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#7} \hspace{0.5em} \highlight{Partial}{P}{#7} \hspace{0.5em} \highlight{Complete}{C}{#7}
+  \end{tabular}
+}
+
+\newcommand{\CVSSthree}[9]{
   \begin{tabular}{ll}
     \textbf{Attack Vector} & \textbf{Scope}
     \\

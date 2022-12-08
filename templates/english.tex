@@ -181,14 +181,15 @@ The following tools have been used during the engagement:
 \VAR{ tools|markdown2latex }
 
 \clearpage
+
 \section{Results}
 \label{sec:results}
 
-\BLOCK{ for group in groups }
-  \begin{table}[h]
+\BLOCK{ for group in groups|sort(attribute='order') }
+  \begin{table}[h!]
     \centering
     \caption{Vulnerabilities and their severity\BLOCK{ if group.name } (component ``\VAR{ group.name }'')\BLOCK{ endif }.}
-    \begin{tabular}{ll}
+    \begin{tabular}{p{0.7\linewidth}l}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
       \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
@@ -198,7 +199,9 @@ The following tools have been used during the engagement:
   \end{table}
 \BLOCK{ endfor }
 
-\BLOCK{ for group in groups }
+\clearpage
+
+\BLOCK{ for group in groups|sort(attribute='order') }
 
   % loop over each of the group's issues
   \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
@@ -227,7 +230,11 @@ The following tools have been used during the engagement:
       \severitygauge{\VAR{ issue.severity.number }}{\VAR{ issue.severity.number }}
 
       \BLOCK{ if issue.severity.cvss }
-        \CVSS{\VAR{ issue.severity.cvss|join('}{') }}  
+        \BLOCK{ if issue.severity.cvss[0] == '2'}
+          \CVSStwo{\VAR{ issue.severity.cvss|join('}{') }}
+        \BLOCK{ else }
+          \CVSSthree{\VAR{ issue.severity.cvss|join('}{') }}
+        \BLOCK{ endif }
       \BLOCK{ endif }
 
       \BLOCK{ if issue.severity.dread }

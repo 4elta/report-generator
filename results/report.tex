@@ -114,7 +114,34 @@
   \ifstrequal{#2}{#3}{\framebox{#1}}{#1}
 }
 
-\newcommand{\CVSS}[9]{
+\newcommand{\CVSStwo}[7]{
+  \begin{tabular}{ll}
+    \textbf{Access Vector} & \textbf{Confidentiality Impact}
+    \\
+    \highlight{Local}{L}{#2} \hspace{0.5em} \highlight{Adjacent Network}{A}{#2} \hspace{0.5em} \highlight{Network}{N}{#2}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#5} \hspace{0.5em} \highlight{Partial}{P}{#5} \hspace{0.5em} \highlight{Complete}{C}{#5}
+    \vspace{1.5ex}
+    \\
+    \textbf{Access Complexity} & \textbf{Integrity Impact}
+    \\
+    \highlight{High}{H}{#3} \hspace{0.5em} \highlight{Medium}{M}{#3} \hspace{0.5em} \highlight{Low}{L}{#3}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#6} \hspace{0.5em} \highlight{Partial}{P}{#6} \hspace{0.5em} \highlight{Complete}{C}{#6}
+    \vspace{1.5ex}
+    \\
+    \textbf{Authentication} & \textbf{Availability Impact}
+    \\
+    \highlight{Multiple}{M}{#4} \hspace{0.5em} \highlight{Single}{S}{#4} \hspace{0.5em} \highlight{None}{N}{#4}
+    \hspace{2em}
+    &
+    \highlight{None}{N}{#7} \hspace{0.5em} \highlight{Partial}{P}{#7} \hspace{0.5em} \highlight{Complete}{C}{#7}
+  \end{tabular}
+}
+
+\newcommand{\CVSSthree}[9]{
   \begin{tabular}{ll}
     \textbf{Attack Vector} & \textbf{Scope}
     \\
@@ -374,28 +401,31 @@ The following tools have been used during the engagement:
 
 
 \clearpage
+
 \section{Results}
 \label{sec:results}
 
-  \begin{table}[h]
+  \begin{table}[h!]
     \centering
     \caption{Vulnerabilities and their severity.}
-    \begin{tabular}{ll}
+    \begin{tabular}{p{0.7\linewidth}l}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
               \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{9.8} 9.8 \\
               \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \minmalseveritygaugeH[0.2]{6.0} 6.0 \\
           \end{tabular}
   \end{table}
-  \begin{table}[h]
+  \begin{table}[h!]
     \centering
     \caption{Vulnerabilities and their severity (component ``EXAMPLE'').}
-    \begin{tabular}{ll}
+    \begin{tabular}{p{0.7\linewidth}l}
       \textbf{Vulnerability} & \textbf{Severity} \\
       \hline
-              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{6.5} 6.5 \\
+              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{6.4} 6.4 \\
           \end{tabular}
   \end{table}
+
+\clearpage
 
 
   % loop over each of the group's issues
@@ -479,8 +509,8 @@ You can also link to other issues: see Section \ref{1:EXAMPLE:issue.md}.
     \begin{center}
       \severitygauge{9.8}{9.8}
 
-              \CVSS{3.1}{N}{L}{N}{N}{U}{H}{H}{H}  
-      
+                        \CVSSthree{3.1}{N}{L}{N}{N}{U}{H}{H}{H}
+              
           \end{center}
 
           \subsubsection{Recommendations}
@@ -685,10 +715,10 @@ Vero repellat sed vero facere error ducimus et.
     \subsubsection{Severity}
 
     \begin{center}
-      \severitygauge{6.5}{6.5}
+      \severitygauge{6.4}{6.4}
 
-              \CVSS{3.1}{N}{L}{N}{N}{U}{L}{L}{N}  
-      
+                        \CVSStwo{2}{N}{L}{N}{P}{P}{N}
+              
           \end{center}
 
           \subsubsection{Recommendations}
