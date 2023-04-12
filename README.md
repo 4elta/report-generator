@@ -8,7 +8,7 @@ Create beautiful pentest reports from Markdown documents.
 
 > I really don't like writing reports.
 >
-> generic pentester
+> --generic pentester
 
 Have you ever wondered why so many pentesters agree with this?
 
