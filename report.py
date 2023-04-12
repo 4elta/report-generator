@@ -64,7 +64,7 @@ def parse_severity(content):
     }
   '''
   
-  match = re.search(r'(?P<number>\d(\.\d+)?)\s*(\((?P<class>[^)]+)\))?\s*(((?P<cvss>CVSS:[^/]+(/\w+:.)+))|((?P<dread>D:./R:./E:./A:./D:.)))?\s*', content, flags=re.MULTILINE)
+  match = re.search(r'(?P<number>\d+(\.\d+)?)\s*(\((?P<class>[^)]+)\))?\s*(((?P<cvss>CVSS:[^/]+(/\w+:.)+))|((?P<dread>D:./R:./E:./A:./D:.)))?\s*', content, flags=re.MULTILINE)
 
   if match:
     return {
