@@ -34,8 +34,8 @@ $ curl -iks https://vulnerable.example.com/ | grep -i 'server:'
 Server: Apache 2.14
 ```
 
-You can add screenshots (see at the end of this file); reference them with !REF[<group nr>:<group name>]:<issue filename>:<image filename>!.
-You can also reference other issues: !REF[<group nr>:<group name>]:<issue filename>!.
+You can add screenshots (see at the end of this file); reference them with !REF:<issue filename>:<image filename>! (if the issue is part of a issue group use !REF:<group nr>:<group name>:<issue filename>:<image filename>!).
+You can also reference other issues: !REF:<issue filename>! (if the referenced issue is part of an issue group use !REF:<group nr>:<group name>:<issue filename>!).
 
 **Severity: 9.8**
 
