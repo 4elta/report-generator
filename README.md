@@ -32,11 +32,11 @@ $ sudo apt install python3-jinja2 texlive-full pandoc
 
 1. modify [`project.yaml`](project.yaml)
 2. conduct pentest
-3. document findings in `report/issues/<issue title>.md`
+3. document findings in [`report/issues/`](report/issues/)
    * put screenshots right next to the issue file
    * you can structure a pentest into groups: put the issues into folders (e.g. `report/issues/1 - EXAMPLE/`)
 4. add issue templates to [`templates/issues/`](templates/issues/)
-5. adapt [`tools.md`](tools.md), [`limitations.md`](limitations.md) and [`summary.md`](summary.md)
+5. adapt [`tools.md`](report/tools.md), [`limitations.md`](report/limitations.md) and [`summary.md`](report/summary.md)
 6. create the PDF report
 
 ```text
