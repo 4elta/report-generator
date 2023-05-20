@@ -15,7 +15,6 @@ CONFIG_PATH = pathlib.Path('project.yaml')
 RESULTS_DIR = pathlib.Path('results')
 TEMPLATES_DIR = pathlib.Path('templates')
 REPORT_DIR = pathlib.Path('report')
-VULNERABILITIES_DIR = pathlib.Path('report', 'vulnerabilities')
 ISSUES_DIR = pathlib.Path('report', 'issues')
 
 def log(msg):
@@ -145,7 +144,7 @@ def parse_unordered_list(content):
 
 def parse_content(content, section_level):
   '''
-  parse the vulnerability/issue document:
+  parse the issue (template) document:
 
     # section one
 
@@ -204,7 +203,7 @@ def load_file(path):
 
   return parse_content(content, 1)
   
-def load_issue(issue_file, group, vulnerabilities):
+def load_issue(issue_file, group, issue_templates):
   issue = load_file(issue_file)
   
   log(f"\nissue ({issue_file}):\n")
@@ -214,12 +213,12 @@ def load_issue(issue_file, group, vulnerabilities):
   issue['class'] = issue['id'][0]
   issue['group'] = group
 
-  # fill in 'description', 'recommendations', 'references' from vulnerability library
-  if issue['id'] in vulnerabilities:
-    vulnerability = vulnerabilities[issue['id']]
-    for key, value in vulnerability.items():
+  # fill in 'description', 'recommendations', 'references' from issue templates
+  if issue['id'] in issue_templates:
+    issue_template = issue_templates[issue['id']]
+    for key, value in issue_template.items():
       if key not in issue:
-        issue[key] = vulnerability[key]
+        issue[key] = issue_template[key]
 
   if group['name']:
     issue['title'] = f"[{group['name']}] {issue['title']}"
@@ -232,19 +231,21 @@ def load_issue(issue_file, group, vulnerabilities):
     f"{group['order']}:{group['name']}:{issue_file.name}" if group['name'] else issue_file.name
   )
 
+  print(f"{issue['title']}")
+
   log(json.dumps(issue, indent=2))
 
   return issue
 
-def load_issue_group(path, group, vulnerabilities):
+def load_issue_group(path, group, issue_templates):
   issues = []
 
   for issue_file in path.glob('*.md'):
-    issues.append(load_issue(issue_file, group, vulnerabilities))
+    issues.append(load_issue(issue_file, group, issue_templates))
 
   return issues
   
-def load_issues(path, vulnerabilities):
+def load_issues(path, issue_templates):
   issues = []
 
   # each directory within the 'issues' directory is an issue group.
@@ -261,7 +262,7 @@ def load_issues(path, vulnerabilities):
         'graphics_path': str(path.relative_to('.')) + '/'
       }
 
-      issues += load_issue_group(path, group, vulnerabilities)
+      issues += load_issue_group(path, group, issue_templates)
     else: # add issues to the default group
       group = {
         'order': '0',
@@ -270,7 +271,7 @@ def load_issues(path, vulnerabilities):
       }
       
       if path.suffix == '.md':
-        issues.append(load_issue(path, group, vulnerabilities))
+        issues.append(load_issue(path, group, issue_templates))
   
   return issues
 
@@ -299,14 +300,14 @@ def markdown2latex(content):
     latex
   )
 
-def load_vulnerabilities(path):
-  vulnerabilities = {}
+def load_issue_templates(path):
+  issue_templates = {}
 
-  for vulnerability_file in path.glob('**/*.md'):
-    vulnerability = load_file(vulnerability_file)
-    vulnerabilities[tuple(vulnerability['id'])] = vulnerability
+  for issue_template_file in path.glob('**/*.md'):
+    issue_template = load_file(issue_template_file)
+    issue_templates[tuple(issue_template['id'])] = issue_template
 
-  return vulnerabilities
+  return issue_templates
 
 def process(args):
   global VERBOSE
@@ -316,15 +317,17 @@ def process(args):
   log(f"\nconfig ({CONFIG_PATH}):\n")
   log(json.dumps(project, indent=2))
 
-  print(f"loading vulnerabilities from '{VULNERABILITIES_DIR}' ...")
-  vulnerabilities = load_vulnerabilities(VULNERABILITIES_DIR)
+  issue_templates_dir = pathlib.Path(TEMPLATES_DIR, 'issues')
+
+  print(f"loading issue templates from '{issue_templates_dir}' ...")
+  issue_templates = load_issue_templates(issue_templates_dir)
   
-  log(f"\nvulnerabilities:\n")
-  for key, vulnerability in vulnerabilities.items():
-    log(json.dumps(vulnerability, indent=2))
+  log(f"\nissue templates:\n")
+  for key, issue_template in issue_templates.items():
+    log(json.dumps(issue_template, indent=2))
 
   print(f"loading issues from '{ISSUES_DIR}' ...")
-  issues = load_issues(ISSUES_DIR, vulnerabilities)
+  issues = load_issues(ISSUES_DIR, issue_templates)
 
   groups = []
   for key, items in itertools.groupby(issues, lambda issue: issue['group']):
@@ -398,8 +401,18 @@ def process(args):
 def main():
   parser = argparse.ArgumentParser()
   
-  parser.add_argument('-o', '--overwrite', help='overwrite the LaTeX document', action='store_true', default=False)
-  parser.add_argument('-v', '--verbose', help='be very verbose', action='store_true')
+  parser.add_argument(
+    '-o', '--overwrite',
+    help='overwrite the LaTeX document',
+    action='store_true',
+    default=False
+  )
+
+  parser.add_argument(
+    '-v', '--verbose',
+    help='be very verbose',
+    action='store_true'
+  )
   
   process(parser.parse_args())
   
