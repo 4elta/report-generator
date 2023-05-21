@@ -12,10 +12,9 @@ import yaml
 
 VERBOSE = False
 CONFIG_PATH = pathlib.Path('project.yaml')
-RESULTS_DIR = pathlib.Path('results')
+OUT_DIR = pathlib.Path('out')
 TEMPLATES_DIR = pathlib.Path('templates')
-REPORT_DIR = pathlib.Path('report')
-ISSUES_DIR = pathlib.Path('report', 'issues')
+SRC_DIR = pathlib.Path('src')
 
 def log(msg):
   if VERBOSE:
@@ -326,8 +325,10 @@ def process(args):
   for key, issue_template in issue_templates.items():
     log(json.dumps(issue_template, indent=2))
 
-  print(f"loading issues from '{ISSUES_DIR}' ...")
-  issues = load_issues(ISSUES_DIR, issue_templates)
+  issues_dir = pathlib.Path(SRC_DIR, 'issues')
+
+  print(f"loading issues from '{issues_dir}' ...")
+  issues = load_issues(issues_dir, issue_templates)
 
   groups = []
   for key, items in itertools.groupby(issues, lambda issue: issue['group']):
@@ -355,16 +356,16 @@ def process(args):
 
   report = template.render(
     project = project,
-    summary = read_file(pathlib.Path(REPORT_DIR, 'summary.md')),
-    limitations = read_file(pathlib.Path(REPORT_DIR, 'limitations.md')),
-    tools = read_file(pathlib.Path(REPORT_DIR, 'tools.md')),
+    summary = read_file(pathlib.Path(SRC_DIR, 'summary.md')),
+    limitations = read_file(pathlib.Path(SRC_DIR, 'limitations.md')),
+    tools = read_file(pathlib.Path(SRC_DIR, 'tools.md')),
     issues = issues,
     groups = groups
   )
 
   log(report)
 
-  report_file = pathlib.Path(RESULTS_DIR, 'report.tex')
+  report_file = pathlib.Path(OUT_DIR, 'report.tex')
 
   # only overwrite existing LaTeX report document if the user wishes so
   if not report_file.exists() or args.overwrite:
@@ -384,16 +385,16 @@ def process(args):
           'pdflatex',
           '-interaction', 'batchmode',
           '-jobname', 'report',
-          '-output-directory', RESULTS_DIR,
+          '-output-directory', OUT_DIR,
           report_file
         ],
         check = True,
         capture_output = True
       )
     except:
-      sys.exit(f"error typsetting LaTeX document: please check '{RESULTS_DIR}/report.log'.")
+      sys.exit(f"error typsetting LaTeX document: please check '{OUT_DIR}/report.log'.")
     
-  pdf_report = pathlib.Path(RESULTS_DIR, 'report.pdf')
+  pdf_report = pathlib.Path(OUT_DIR, 'report.pdf')
   print(f"report created at '{pdf_report}'")
   
   return

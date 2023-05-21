@@ -2,7 +2,7 @@
 
 Create beautiful pentest reports from Markdown documents.
 
-<a href="results/report.pdf"><img src="results/report.png" width="80%"></a>
+<a href="out/report.pdf"><img src="out/report.png" width="80%"></a>
 
 ## motivation
 
@@ -32,11 +32,11 @@ $ sudo apt install python3-jinja2 texlive-full pandoc
 
 1. modify [`project.yaml`](project.yaml)
 2. conduct pentest
-3. document findings in [`report/issues/`](report/issues/)
+3. document findings in [`src/issues/`](src/issues/)
    * put screenshots right next to the issue file
-   * you can structure a pentest into groups: put the issues into folders (e.g. `report/issues/1 - EXAMPLE/`)
+   * you can structure a pentest into groups: put the issues into folders
 4. add issue templates to [`templates/issues/`](templates/issues/)
-5. adapt [`tools.md`](report/tools.md), [`limitations.md`](report/limitations.md) and [`summary.md`](report/summary.md)
+5. adapt [`tools.md`](src/tools.md), [`limitations.md`](src/limitations.md) and [`summary.md`](src/summary.md)
 6. create the PDF report
 
 ```text
