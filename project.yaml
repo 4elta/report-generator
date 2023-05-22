@@ -7,8 +7,8 @@ scope:
   - '`example.com` (application server)'
   - '`https://example.com/` (web application)'
 period:
-  start: yyyy-mm-dd
-  end: yyyy-mm-dd
+  start: 'yyyy-mm-dd'
+  end: 'yyyy-mm-dd'
 personnel:
   - Customer (customer@example.com)
   - Software Engineer (se@example.com)
