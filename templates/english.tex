@@ -190,11 +190,11 @@ The following tools have been used during the engagement:
   \begin{table}[h!]
     \centering
     \caption{Vulnerabilities and their severity\BLOCK{ if group.name } (component ``\VAR{ group.name }'')\BLOCK{ endif }.}
-    \begin{tabular}{p{0.7\linewidth}l}
-      \textbf{Vulnerability} & \textbf{Severity} \\
+    \begin{tabular}{ p{0.7\linewidth} c d{1} }
+      \textbf{Vulnerability} & \multicolumn{2}{c}{\textbf{Severity}} \\
       \hline
       \BLOCK{ for issue in issues|sort(attribute='severity.number', reverse=true) if issue.group.order == group.order }
-        \hyperref[\VAR{ issue.label }]{\VAR{ issue.title }} & \minmalseveritygaugeH[0.2]{\VAR{ issue.severity.number }} \VAR{ issue.severity.number } \\
+        \hyperref[\VAR{ issue.label }]{\VAR{ issue.title }} & \minmalseveritygaugeH[0.2]{\VAR{ issue.severity.number }} & \VAR{ issue.severity.number } \\
       \BLOCK{ endfor }
     \end{tabular}
   \end{table}

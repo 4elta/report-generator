@@ -19,5 +19,5 @@ Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
 
 # severity
 
-6.0 (medium)
+6 (medium)
 D:M/R:H/E:H/A:L/D:M

@@ -186,6 +186,10 @@
   \end{tabular}
 }
 
+% align columns at decimal points
+\usepackage{dcolumn}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
 % nicer tables
 \setlength{\tabcolsep}{10pt} % increase horizontal spacing; default value: 6pt
 \renewcommand{\arraystretch}{1.5} % increase vertical spacing; default value: 1

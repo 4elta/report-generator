@@ -186,6 +186,10 @@
   \end{tabular}
 }
 
+% align columns at decimal points
+\usepackage{dcolumn}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
 % nicer tables
 \setlength{\tabcolsep}{10pt} % increase horizontal spacing; default value: 6pt
 \renewcommand{\arraystretch}{1.5} % increase vertical spacing; default value: 1
@@ -253,7 +257,7 @@ In accordance with the customer the following types of penetration tests have be
 
   \end{itemize}
 
-Vulnerabilities with severity scores between 6.0 and 9.8 (on a scale from 0--10) have been found (see Table~\ref{tab:vulnerabilities}).
+Vulnerabilities with severity scores between 6 and 9.8 (on a scale from 0--10) have been found (see Table~\ref{tab:vulnerabilities}).
 A detailed list thereof, including descriptions on how they were found, and recommendations for mitigations, can be found in Section~\ref{sec:results}.
 
 \begin{table}[h!]
@@ -264,7 +268,7 @@ A detailed list thereof, including descriptions on how they were found, and reco
     \textbf{Class} & \textbf{Severity} & \textbf{Issues} \\
     \hline
           Class A & \minmalseveritygaugeH[0.2]{9.8} & 2 \\
-          Class B & \minmalseveritygaugeH[0.2]{6.0} & 1 \\
+          Class B & \minmalseveritygaugeH[0.2]{6} & 1 \\
         \hline
     \textbf{Total} & ~ & \textbf{3}
   \end{tabular}
@@ -303,7 +307,7 @@ In accordance with the customer the following types of penetration tests have be
 
 \subsection{Personnel}
 
-The following people were part of this penetration test:
+The following people were involved in this penetration test:
 
 \begin{itemize}
       \item Customer (customer@example.com)
@@ -354,8 +358,9 @@ Vel et sunt suscipit praesentium vitae voluptatem sequi inventore.
 
   \subsection{Limitations}
 
-  During the engagement the following limitations were detected.
-  Secure By Default recommends to re-test the affected components once all limitations have been resolved.
+  Due to the time-constrained nature if audits, it is common to encounter coverage limitations.
+  The following limitations were identified during this engagement.
+  Secure By Default recommends further review and/or retesting of the affected systems/components.
 
   \textbf{Dapibus}
 
@@ -408,20 +413,20 @@ The following tools have been used during the engagement:
   \begin{table}[h!]
     \centering
     \caption{Vulnerabilities and their severity.}
-    \begin{tabular}{p{0.7\linewidth}l}
-      \textbf{Vulnerability} & \textbf{Severity} \\
+    \begin{tabular}{ p{0.7\linewidth} c d{1} }
+      \textbf{Vulnerability} & \multicolumn{2}{c}{\textbf{Severity}} \\
       \hline
-              \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{9.8} 9.8 \\
-              \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \minmalseveritygaugeH[0.2]{6.0} 6.0 \\
+              \hyperref[issue.md]{Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{9.8} & 9.8 \\
+              \hyperref[issue2.md]{Aenean Gravida Pulvinar Lacus} & \minmalseveritygaugeH[0.2]{6} & 6 \\
           \end{tabular}
   \end{table}
   \begin{table}[h!]
     \centering
     \caption{Vulnerabilities and their severity (component ``EXAMPLE'').}
-    \begin{tabular}{p{0.7\linewidth}l}
-      \textbf{Vulnerability} & \textbf{Severity} \\
+    \begin{tabular}{ p{0.7\linewidth} c d{1} }
+      \textbf{Vulnerability} & \multicolumn{2}{c}{\textbf{Severity}} \\
       \hline
-              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{6.4} 6.4 \\
+              \hyperref[1:EXAMPLE:issue.md]{[EXAMPLE] Lorem Ipsum Dolor sit Amet} & \minmalseveritygaugeH[0.2]{6.4} & 6.4 \\
           \end{tabular}
   \end{table}
 
@@ -603,7 +608,7 @@ Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
     \subsubsection{Severity}
 
     \begin{center}
-      \severitygauge{6.0}{6.0}
+      \severitygauge{6}{6}
 
       
               \DREAD{M}{H}{H}{L}{M}  
