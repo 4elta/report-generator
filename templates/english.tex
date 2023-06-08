@@ -121,10 +121,14 @@ Between \VAR{ project.period.start } and \VAR{ project.period.end } the followin
 All test-related IP traffic originates from the following addresses:
 
 \begin{itemize}
-  \item 11.22.33.44/24
+  \item \passthrough{192.168.0.0/24}
 \end{itemize}
 
 \subsection{Methodology}
+
+This section explains how Secure By Default conducts a penetration test
+(e.g.\ \href{https://www.isecom.org/OSSTMM.3.pdf}{OSSTMM~3}).
+It also introduces vulnerability scoring systems (e.g.\ \href{https://www.first.org/cvss/v3.1/specification-document}{CVSS}, DREAD).
 
 Ex cumque unde ipsum molestias.
 Perferendis aut veritatis quas cum fugiat ea.
@@ -144,7 +148,7 @@ Vel et sunt suscipit praesentium vitae voluptatem sequi inventore.
 \BLOCK{ if project.requirements }
   \subsection{Requirements}
 
-  In order to conduct this penetration test, Secure By Default required the following:
+  Secure By Default required the following from the customer:
 
   \begin{itemize}
     \BLOCK{ for req in project.requirements }
@@ -168,7 +172,7 @@ Vel et sunt suscipit praesentium vitae voluptatem sequi inventore.
 \BLOCK{ if limitations }
   \subsection{Limitations}
 
-  Due to the time-constrained nature if audits, it is common to encounter coverage limitations.
+  Due to the time-constrained nature of audits, it is common to encounter coverage limitations.
   The following limitations were identified during this engagement.
   Secure By Default recommends further review and/or retesting of the affected systems/components.
 

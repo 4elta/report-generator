@@ -1,19 +1,37 @@
-customer: Example, Inc.
-name: Example Pentest
+customer: 'Example, Inc.'
+
+name: 'Example Pentest'
+
 services:
-  - pentest against web applications
-  - pentest against IP hosts
+  - 'pentest against IP hosts'
+  - 'pentest against web applications'
+
 scope:
   - '`example.com` (application server)'
-  - '`https://example.com/` (web application)'
+  - '`https://example.com/` (web application + API)'
+
 period:
   start: 'yyyy-mm-dd'
   end: 'yyyy-mm-dd'
+
 personnel:
-  - Customer (customer@example.com)
-  - Software Engineer (se@example.com)
-  - Project Lead (lead@sbd.local)
-  - Pentester (hacker@sbd.local)
+  - 'Customer (customer@example.com)'
+  - 'Software Engineer (se@example.com)'
+  - 'Project Lead (lead@sbd.local)'
+  - 'Pentester (hacker@sbd.local)'
+
 report:
-  template: english
-  revision: yyyy-mm-dd (1.0)
+  template: 'english'
+  revision: 'yyyy-mm-dd (1.0)'
+
+# this part is optional; i.e. you could remove it
+requirements:
+  - 'technical contact personnel: fulfilled'
+  - 'user accounts (at least two per type) for the web application: fulfilled'
+  - 'API access token: fulfilled'
+  - '[OpenAPI Specification](https://www.openapis.org/) document for the API: none provided'
+
+# this part is optional; i.e. you could remove it
+provided_information:
+  - 'source code of the web application'
+  - 'Apache config'
