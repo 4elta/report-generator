@@ -15,7 +15,7 @@ import pathlib
 import sys
 
 VERBOSE = False
-ISSUES_DIR = pathlib.Path('report', 'issues')
+ISSUES_DIR = pathlib.Path('src', 'issues')
 
 try:
   # https://github.com/tiran/defusedxml
