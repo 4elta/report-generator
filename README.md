@@ -2,7 +2,7 @@
 
 Create beautiful pentest reports from Markdown documents.
 
-<a href="out/report.pdf"><img src="out/report.png" width="80%"></a>
+<a href="out/report.pdf"><img src="res/images/report.png" width="80%"></a>
 
 ## motivation
 
