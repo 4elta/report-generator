@@ -35,8 +35,8 @@ $ sudo apt install python3-jinja2 texlive-full pandoc
 3. document findings in [`src/issues/`](src/issues/)
    * put screenshots right next to the issue file
    * you can structure a pentest into groups: put the issues into folders
-4. add issue templates to [`templates/issues/`](templates/issues/)
-5. adapt [`tools.md`](src/tools.md), [`limitations.md`](src/limitations.md) and [`summary.md`](src/summary.md)
+4. add issue templates to [`res/issues/`](res/issues/)
+5. adapt `tools-{language}.md`, `limitations.md` and `summary.md`
 6. create the PDF report
 
 ```text
@@ -45,7 +45,8 @@ usage: report.py [-h] [-o] [-v]
 
 options:
   -h, --help       show this help message and exit
-  -o, --overwrite  overwrite the LaTeX document
+  -o, --overwrite  overwrite the LaTeX document. WARNING: providing this flag causes the output directory
+                   ('out/') to be cleared
   -v, --verbose    be very verbose
 ```
 

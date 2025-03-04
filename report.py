@@ -9,18 +9,40 @@ import re
 import subprocess
 import sys
 import yaml
+import zlib
 
 VERBOSE = False
 CONFIG_PATH = pathlib.Path('project.yaml')
 OUT_DIR = pathlib.Path('out')
-TEMPLATES_DIR = pathlib.Path('templates')
+RESOURCES_DIR = pathlib.Path('res')
+#TEMPLATES_DIR = pathlib.Path('templates')
 SRC_DIR = pathlib.Path('src')
+
+# replace some UTF-8 sequences with plain LaTeX.
+UTF8_REPLACEMENTS = {
+  'Ä': r'{\\"A}',
+  'ä': r'{\\"a}',
+  'Ö': r'{\\"O}',
+  'ö': r'{\\"o}',
+  'Ü': r'{\\"U}',
+  'ü': r'{\\"u}',
+  'ß': r'{\\ss}',
+  ' ': '~', # non-breaking space
+  '…': r'\\ldots',
+  '–': '--', # en dash
+  '—': '---', # em dash
+  '„': '``', # german starting quotation mark
+  '“': "''", # german ending quotation mark
+}
 
 def log(msg):
   if VERBOSE:
     print(msg)
 
 def read_file(path):
+  if not path.exists():
+    return None
+
   with open(path) as f:
     content = f.read()
   return content.strip()
@@ -208,6 +230,9 @@ def load_issue(issue_file, group, issue_templates):
   log(f"\nissue ({issue_file}):\n")
   log(json.dumps(issue, indent=2))
 
+  if 'id' not in issue:
+    sys.exit(f"issue ID not specified: '{issue_file}'")
+
   issue['id'] = tuple(issue['id'])
   issue['class'] = issue['id'][0]
   issue['group'] = group
@@ -230,9 +255,11 @@ def load_issue(issue_file, group, issue_templates):
     f"{group['order']}:{group['name']}:{issue_file.name}" if group['name'] else issue_file.name
   )
 
-  print(f"{issue['title']}")
+  if not ('title' in issue and 'description' in issue and 'evidence' in issue and 'affected assets' in issue and 'severity' in issue):
+    sys.exit(f"required information (e.g. title, description, evidence, affected assets, severity) not provided: '{issue_file}'")
 
   log(json.dumps(issue, indent=2))
+  log(f"{issue['title']}")
 
   return issue
 
@@ -275,6 +302,9 @@ def load_issues(path, issue_templates):
   return issues
 
 def markdown2latex(content):
+  if content is None:
+    return ""
+
   process = subprocess.run(
     [
       'pandoc',
@@ -308,19 +338,34 @@ def load_issue_templates(path):
 
   return issue_templates
 
-def process(args):
-  global VERBOSE
-  VERBOSE = args.verbose
+def compile_document(input_file, output_directory):
+  subprocess.run(
+    [
+      'pdflatex',
+      '-interaction=batchmode',
+      '-jobname=report',
+      f'-output-directory={output_directory}',
+      input_file
+    ],
+    check = True,
+    capture_output = True
+  )
 
+  # return the Adler-32 checksum of the 'report.aux' file.
+  # when the checksum stays constant (from one run to the next) no additional compilation is needed.
+  with open(pathlib.Path(output_directory, 'report.aux')) as f:
+    return zlib.adler32(f.read().encode())
+
+def render_document():
   project = yaml.safe_load(open(CONFIG_PATH))
   log(f"\nconfig ({CONFIG_PATH}):\n")
   log(json.dumps(project, indent=2))
 
-  issue_templates_dir = pathlib.Path(TEMPLATES_DIR, 'issues')
+  issue_templates_dir = pathlib.Path(RESOURCES_DIR, 'issues', project["report"]["language"])
 
   print(f"loading issue templates from '{issue_templates_dir}' ...")
   issue_templates = load_issue_templates(issue_templates_dir)
-  
+
   log(f"\nissue templates:\n")
   for key, issue_template in issue_templates.items():
     log(json.dumps(issue_template, indent=2))
@@ -334,15 +379,15 @@ def process(args):
   for key, items in itertools.groupby(issues, lambda issue: issue['group']):
     if key not in groups:
       groups.append(key)
-    
+
   log("\ngroups:\n")
   log(json.dumps(groups, indent=2))
 
   env = jinja2.Environment(
-    loader = jinja2.FileSystemLoader(searchpath=TEMPLATES_DIR),
-    block_start_string = '\BLOCK{', block_end_string = '}',
-    variable_start_string = '\VAR{', variable_end_string = '}',
-    comment_start_string = '\#{', comment_end_string = '}',
+    loader = jinja2.FileSystemLoader(searchpath=pathlib.Path(RESOURCES_DIR, 'tex')),
+    block_start_string = r'\BLOCK{', block_end_string = '}',
+    variable_start_string = r'\VAR{', variable_end_string = '}',
+    comment_start_string = r'\#{', comment_end_string = '}',
     line_statement_prefix = '%%',
     line_comment_prefix = '%#',
     trim_blocks = True,
@@ -351,52 +396,93 @@ def process(args):
 
   # register custom filter
   env.filters['markdown2latex'] = markdown2latex
-  
-  template = env.get_template(f'{project["report"]["template"]}.tex')
 
-  report = template.render(
+  template_file = f'{project["report"]["language"]}.tex'
+  template = env.get_template(template_file)
+
+  print(f"rendering '{template_file}' ...")
+  rendered_document = template.render(
     project = project,
     summary = read_file(pathlib.Path(SRC_DIR, 'summary.md')),
     limitations = read_file(pathlib.Path(SRC_DIR, 'limitations.md')),
-    tools = read_file(pathlib.Path(SRC_DIR, 'tools.md')),
+    tools = read_file(pathlib.Path(SRC_DIR, f'tools-{project["report"]["language"]}.md')),
+    test_procedure = read_file(pathlib.Path(SRC_DIR, 'test_procedure.md')),
     issues = issues,
     groups = groups
   )
 
-  log(report)
+  log(rendered_document)
+
+  return rendered_document
+
+def process(args):
+  global VERBOSE
+  VERBOSE = args.verbose
 
   report_file = pathlib.Path(OUT_DIR, 'report.tex')
 
   # only overwrite existing LaTeX report document if the user wishes so
   if not report_file.exists() or args.overwrite:
+    print(f"clearing '{OUT_DIR}' ...")
+    for artifact in OUT_DIR.iterdir():
+      artifact.unlink()
+
+    rendered_document = render_document()
+
+    print("fixing Markdown/LaTeX quirks ...")
+
+    # instruct LaTeX to display the figure right where it is defined (i.e. `[h]`)
+    rendered_document = re.sub(
+      r'begin{figure}$',
+      r'begin{figure}[h]',
+      rendered_document,
+      flags = re.MULTILINE
+    )
+
+    # scale graphics to the width of the text
+    rendered_document = re.sub(
+      r'includegraphics{',
+      r'includegraphics[width=\\textwidth]{',
+      rendered_document,
+      flags = re.MULTILINE
+    )
+
+    print("replacing UTF-8 sequences (e.g. umlaut, esszet, etc) with plain LaTeX ...")
+    for search_string, replacement in UTF8_REPLACEMENTS.items():
+      rendered_document = re.sub(
+        search_string,
+        replacement,
+        rendered_document,
+        flags = re.MULTILINE
+      )
+
     report_file.touch(exist_ok=True)
-    
+
+    print(f"writing '{report_file}' ...")
     with open(report_file, 'w') as f:
-      f.write(report)
+      f.write(rendered_document)
 
   print(f"compiling '{report_file}' ...")
 
-  for i in range(1,3):
-    print(f"run #{i} ...")
+  try:
+    run = 1
+    checksum = None
 
-    try:
-      subprocess.run(
-        [
-          'pdflatex',
-          '-interaction', 'batchmode',
-          '-jobname', 'report',
-          '-output-directory', OUT_DIR,
-          report_file
-        ],
-        check = True,
-        capture_output = True
-      )
-    except:
-      sys.exit(f"error typsetting LaTeX document: please check '{OUT_DIR}/report.log'.")
-    
+    # when the checksum stays constant (from one run to the next) no additional compilation is needed.
+    while True:
+      print(f"run #{run} ...")
+      cs = compile_document(report_file, OUT_DIR)
+      if cs == checksum:
+        break
+
+      checksum = cs
+      run += 1
+  except subprocess.CalledProcessError as e:
+    sys.exit(f"error compiling LaTeX document: please check '{pathlib.Path(OUT_DIR, 'report.log')}'.")
+
   pdf_report = pathlib.Path(OUT_DIR, 'report.pdf')
   print(f"report created at '{pdf_report}'")
-  
+
   return
 
 def main():
@@ -404,7 +490,7 @@ def main():
   
   parser.add_argument(
     '-o', '--overwrite',
-    help='overwrite the LaTeX document',
+    help="overwrite the LaTeX document. WARNING: providing this flag causes the output directory ('out/') to be cleared",
     action='store_true',
     default=False
   )

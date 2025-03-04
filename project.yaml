@@ -21,7 +21,7 @@ personnel:
   - 'Pentester (hacker@sbd.local)'
 
 report:
-  template: 'english'
+  language: 'english'
   revision: 'yyyy-mm-dd (1.0)'
 
 # this part is optional; i.e. you could remove it
