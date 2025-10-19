@@ -237,12 +237,21 @@ def load_issue(issue_file, group, issue_templates):
   issue['class'] = issue['id'][0]
   issue['group'] = group
 
-  # fill in 'description', 'recommendations', 'references' from issue templates
   if issue['id'] in issue_templates:
     issue_template = issue_templates[issue['id']]
     for key, value in issue_template.items():
-      if key not in issue:
-        issue[key] = issue_template[key]
+      if key == 'id':
+        continue
+
+      if key not in issue: # use information from template
+        issue[key] = value
+        continue
+
+      if key in ('title', 'description', 'severity'): # do NOT overwrite the information from the issue with that from the template
+        continue
+
+      # prepend the information from the template to the issue
+      issue[key] = f"{value}\n{issue[key]}"
 
   if group['name']:
     issue['title'] = f"[{group['name']}] {issue['title']}"

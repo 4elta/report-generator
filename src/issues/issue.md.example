@@ -13,14 +13,14 @@ Describe the vulnerability (not the evidence) as clearly as possible for the cus
 
 The following properties of the `issue` object are optional:
 
-* `title`
-* `description`
-* `recommendations`
-* `references`
+* `title` (can be overwritten)
+* `description` (can be overwritten)
+* `recommendations` (can be appended to)
+* `references` (can be appended to)
 
 Just be sure that you are referencing an existing vulnerability inside your library (i.e. with the `id` property)!
 
-You can overwrite any of the above properties by providing them in the issue Markdown document.
+You can overwrite or append to any of the above properties by providing them in the issue Markdown document.
 
 # evidence
 
@@ -57,15 +57,15 @@ CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
 CVSS:2/AV:N/AC:L/Au:N/C:C/I:C/A:C
 D:M/R:H/E:H/A:L/D:M
 
-use either CVSS or DREAD
+use either CVSS or DREAD; this section is optional if the issue template provides it
 
 # recommendations
 
-Give detailed steps on how to mitigate the vulnerability.
+* Give detailed steps on how to mitigate the vulnerability.
 
 # references
 
-* [Reference](https://example.com/)
+* [Example Reference](https://example.com/)
 
 # images
 

@@ -21,3 +21,11 @@ Pellentesque eros mi, sagittis in metus vestibulum, pretium iaculis est.
 
 6 (medium)
 D:M/R:H/E:H/A:L/D:M
+
+# recommendations
+
+* Do something specific, not mentioned in the issue template.
+
+# references
+
+* Some Additional Reference Not Mentioned in the Issue Template
